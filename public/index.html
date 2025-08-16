@@ -1,15 +1,357 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>YAFA-prompts - Transform Ideas into Perfect AI Prompts</title>
-    <script type="module" crossorigin src="/assets/index-xlJ6GM7i.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-jie-TVgz.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
-  </html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAFA Perfect Prompt Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+        }
+        
+        .demo-section h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        
+        .json-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .example-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .example-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .example-card h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        
+        .example-card p {
+            color: #718096;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 YAFA Perfect Prompt Generator</h1>
+            <p>Systematic compilation from user intent to validated outputs</p>
+        </div>
+        
+        <div class="content">
+            <div class="demo-section">
+                <h2>Quick Ask Demo</h2>
+                <p style="color: #718096; margin-bottom: 20px;">
+                    Test the prompt generation system with natural language questions
+                </p>
+                
+                <form id="askForm">
+                    <div class="form-group">
+                        <label for="question">Question</label>
+                        <textarea id="question" placeholder="What is the travel policy for international business trips?" required></textarea>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label for="domain">Domain</label>
+                            <select id="domain">
+                                <option value="policies">Policies</option>
+                                <option value="technical_docs">Technical Docs</option>
+                                <option value="business_plans">Business Plans</option>
+                                <option value="legal">Legal</option>
+                                <option value="general">General</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="style">Style</label>
+                            <select id="style">
+                                <option value="executive_brief">Executive Brief</option>
+                                <option value="technical">Technical</option>
+                                <option value="empathetic">Empathetic</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="button" id="submitBtn">
+                        Generate Response
+                    </button>
+                </form>
+                
+                <div id="loadingDiv" class="loading" style="display: none; margin-top: 20px;">
+                    <div class="spinner"></div>
+                    <span>Generating response...</span>
+                </div>
+                
+                <div id="result" class="result" style="display: none;"></div>
+            </div>
+            
+            <div class="demo-section">
+                <h2>Example Questions</h2>
+                <div class="examples">
+                    <div class="example-card" onclick="setExample('What is the travel policy for international business trips?', 'policies')">
+                        <h4>Travel Policy</h4>
+                        <p>International business trip guidelines</p>
+                    </div>
+                    <div class="example-card" onclick="setExample('Can employees expense meals for client entertainment?', 'policies')">
+                        <h4>Expense Policy</h4>
+                        <p>Meal and entertainment expenses</p>
+                    </div>
+                    <div class="example-card" onclick="setExample('What are the API rate limits for our service?', 'technical_docs')">
+                        <h4>API Documentation</h4>
+                        <p>Technical rate limiting details</p>
+                    </div>
+                    <div class="example-card" onclick="setExample('How is data encryption implemented in our system?', 'technical_docs')">
+                        <h4>Security Documentation</h4>
+                        <p>Data encryption specifications</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-
+    <script>
+        const API_BASE = window.location.origin;
+        
+        function setExample(question, domain) {
+            document.getElementById('question').value = question;
+            document.getElementById('domain').value = domain;
+        }
+        
+        document.getElementById('askForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const question = document.getElementById('question').value;
+            const domain = document.getElementById('domain').value;
+            const style = document.getElementById('style').value;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingDiv = document.getElementById('loadingDiv');
+            const resultDiv = document.getElementById('result');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            loadingDiv.style.display = 'flex';
+            resultDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question,
+                        domain,
+                        style,
+                        max_words: 120
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Display result
+                resultDiv.innerHTML = `
+                    <h3>Response</h3>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Answer:</strong> ${data.answer || 'No answer generated'}
+                    </div>
+                    ${data.citations && data.citations.length > 0 ? `
+                        <div style="margin-bottom: 15px;">
+                            <strong>Citations:</strong>
+                            <ul style="margin-left: 20px;">
+                                ${data.citations.map(c => `<li>${c.chunk_id} (relevance: ${(c.relevance * 100).toFixed(1)}%)</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    <div style="margin-bottom: 15px;">
+                        <strong>Confidence:</strong> ${((data.confidence || 0) * 100).toFixed(1)}%
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>Metadata:</strong>
+                        <div style="font-size: 12px; color: #718096;">
+                            Cost: $${(data.metadata?.cost || 0).toFixed(4)} • 
+                            Latency: ${data.metadata?.latency_ms || 0}ms • 
+                            Tokens: ${data.metadata?.tokens || 0}
+                        </div>
+                    </div>
+                    <details>
+                        <summary style="cursor: pointer; margin-bottom: 10px;"><strong>Full Response</strong></summary>
+                        <div class="json-output">${JSON.stringify(data, null, 2)}</div>
+                    </details>
+                `;
+                resultDiv.style.display = 'block';
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3>Error</h3>
+                    <div style="color: #e53e3e;">
+                        Failed to generate response: ${error.message}
+                    </div>
+                `;
+                resultDiv.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                loadingDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

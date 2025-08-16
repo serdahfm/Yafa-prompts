@@ -1,0 +1,5 @@
+{"id": "eval_001", "question": "Can managers book business class for domestic flights?", "domain": "policies", "must_contain": ["approval required", "domestic"], "must_cite": true, "expected_confidence": 0.9, "max_cost_usd": 0.01}
+{"id": "eval_002", "question": "What is the maximum home office equipment budget?", "domain": "policies", "must_contain": ["$1,500", "one-time"], "must_cite": true, "expected_confidence": 0.95, "max_cost_usd": 0.01}
+{"id": "eval_003", "question": "Are employees allowed to work remotely full-time?", "domain": "policies", "must_contain": ["manager approval", "role-dependent"], "must_cite": true, "expected_confidence": 0.8, "max_cost_usd": 0.01}
+{"id": "eval_004", "question": "What's the policy on conference attendance expenses?", "domain": "policies", "must_contain": ["pre-approval", "budget"], "must_cite": true, "expected_confidence": 0.85, "max_cost_usd": 0.01}
+{"id": "eval_005", "question": "How many personal days are employees entitled to?", "domain": "policies", "must_contain": ["annual", "accrual"], "must_cite": true, "expected_confidence": 0.9, "max_cost_usd": 0.01}

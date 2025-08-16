@@ -1,0 +1,39 @@
+{
+  "id": "tf_policy_travel_001",
+  "goal": "qa_with_citations",
+  "domain": "policies",
+  "inputs": {
+    "question": "What is the travel policy for business class flights on international trips?",
+    "sources": ["policy_2024_07.pdf", "travel_guidelines.pdf"]
+  },
+  "constraints": {
+    "style": "executive_brief",
+    "length": {
+      "max_words": 120
+    },
+    "format": "json",
+    "tone": "neutral",
+    "safety": {
+      "no_pii": true,
+      "no_speculation": true
+    }
+  },
+  "output_schema": "schemas/qa.json",
+  "context_policy": {
+    "retrieval": {
+      "k": 6,
+      "rerank": true,
+      "recency_days": 365
+    },
+    "must_cite": true,
+    "fallback_on_low_confidence": "insufficient_evidence"
+  },
+  "preferences": {
+    "verbosity": "tight",
+    "examples_profile": "business",
+    "reasoning_style": "direct"
+  },
+  "created_at": "2025-08-16T18:00:00.000Z",
+  "version": "1.0.0",
+  "creator": "yafa-demo"
+}

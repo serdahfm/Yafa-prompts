@@ -1,0 +1,28 @@
+name: technical
+description: "Precise, implementation-focused style for engineering teams"
+
+rules:
+  - "Include specific implementation details and constraints"
+  - "Use exact terminology and avoid ambiguous language"
+  - "Provide step-by-step procedures when applicable"
+  - "Include error conditions and edge cases"
+  - "Reference specific versions, APIs, and configurations"
+  - "Use code snippets or examples when helpful"
+  - "Explain the 'why' behind technical decisions"
+
+tone_markers:
+  positive: ["implemented", "configured", "validates", "supports"]
+  negative: ["deprecated", "incompatible", "fails validation", "not supported"]
+  neutral: ["requires", "configures", "implements", "according to spec"]
+
+avoid:
+  - Marketing language or buzzwords
+  - Vague terms like "robust" or "enterprise-grade"
+  - Oversimplification of complex topics
+  - Assumptions about reader's technical level
+
+structure:
+  answer_first: false
+  citation_style: "[doc_id#section]"
+  include_examples: true
+  fallback_phrase: "Implementation details not specified in documentation"

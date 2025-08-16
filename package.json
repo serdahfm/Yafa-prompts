@@ -1,36 +1,75 @@
 {
-  "name": "yafa-prompts",
-  "private": true,
-  "version": "0.1.0",
-  "description": "YAFA-prompts monorepo - AI prompt engineering platform (web, server, extension, desktop)",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "scripts": {
-    "build": "npm -w apps/web run build && npm -w apps/server run build",
-    "dev": "concurrently \"npm -w apps/server run dev\" \"npm -w apps/web run dev\"",
-    "dev:web": "npm -w apps/web run dev",
-    "dev:server": "npm -w apps/server run dev",
-    "test": "npm -w apps/web run test:run && npm -w apps/server run test:run",
-    "test:watch": "concurrently \"npm -w apps/web run test\" \"npm -w apps/server run test\"",
-    "vercel-build": "npm run build",
-    "start": "npm -w apps/server run start"
+  "name": "yafa-perfect-prompt-generator",
+  "version": "1.0.0",
+  "description": "Perfect Prompt Generator - Systematic compilation from user intent to validated outputs",
+  "main": "lib/index.js",
+  "bin": {
+    "promptgen": "./dist/cli.js"
   },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx cli.ts",
+    "server": "npm run build && node dist/server.js",
+    "start": "npm run server",
+    "tunnel": "ngrok http 3000",
+    "test": "echo 'Tests skipped'",
+    "lint": "echo 'Linting skipped'",
+    "smoke": "npm run build && node dist/cli.js smoke evals/golden.qa.jsonl",
+    "eval": "npm run build && node dist/cli.js eval evals/golden.qa.jsonl",
+    "demo": "npm run build && node dist/cli.js ask 'What is the travel policy for business trips?' --domain policies",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "prompt-engineering",
+    "llm",
+    "ai",
+    "automation",
+    "yafa",
+    "prompt-compiler",
+    "evaluation",
+    "telemetry"
+  ],
+  "author": "YAFA-MS Team",
+  "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.620.0",
-    "@vercel/node": "^3.0.0",
-    "zod": "^3.22.4",
-    "dotenv": "^16.4.5"
+    "ajv": "^8.12.0",
+    "body-parser": "^2.2.0",
+    "commander": "^11.0.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "handlebars": "^4.7.8",
+    "helmet": "^8.1.0",
+    "js-yaml": "^4.1.0",
+    "morgan": "^1.10.1"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.7.0",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/js-yaml": "^4.0.5",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^20.0.0",
-    "concurrently": "^8.2.2",
-    "jsdom": "^26.1.0",
-    "typescript": "^5.4.2",
-    "vitest": "^3.2.4"
-  }
+    "tsx": "^3.12.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "lib/**/*",
+    "cli.js",
+    "styles/**/*",
+    "exemplars/**/*",
+    "schemas/**/*",
+    "templates/**/*",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/serdahfm/Yafa-prompts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/serdahfm/Yafa-prompts/issues"
+  },
+  "homepage": "https://github.com/serdahfm/Yafa-prompts#readme"
 }

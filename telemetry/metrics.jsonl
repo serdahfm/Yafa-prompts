@@ -1,0 +1,10 @@
+{"name":"execution.latency_ms","value":134,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}
+{"name":"execution.cost_usd","value":0.0065,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}
+{"name":"execution.tokens.total","value":650,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}
+{"name":"execution.tokens.prompt","value":500,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}
+{"name":"execution.tokens.completion","value":150,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}
+{"name":"quality.citation_coverage","value":0,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}
+{"name":"quality.schema_violations","value":0,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}
+{"name":"quality.citations_missing","value":1,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}
+{"name":"efficiency.retrieved_chunks","value":0,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}
+{"name":"efficiency.cost_per_token","value":0.000009999999999999999,"timestamp":"2025-08-16T18:12:16.273Z","tags":{"model":"gpt-4o-mini","compiler_version":"1.0.0"},"trace_id":"tr_1755367936139_ql72on"}

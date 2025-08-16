@@ -1,0 +1,31 @@
+name: executive_brief
+description: "Crisp, decision-oriented style for executive consumption"
+
+rules:
+  - "Lead with the answer in 1-2 sentences"
+  - "Use crisp, neutral tone; no hedging or weasel words"
+  - "If evidence is thin, say 'Insufficient evidence' - don't speculate"
+  - "Prefer active voice over passive"
+  - "No preamble - start with the actual answer"
+  - "Use bullet points for lists of 3+ items"
+  - "Include specific numbers, dates, and sources when available"
+  - "Maximum 120 words unless specifically requested otherwise"
+
+tone_markers:
+  positive: ["confirmed", "established", "clear policy states"]
+  negative: ["insufficient evidence", "policy unclear", "requires clarification"] 
+  neutral: ["according to", "policy indicates", "documentation shows"]
+
+avoid:
+  - "It seems that..."
+  - "Based on my understanding..."
+  - "I believe..."
+  - "Perhaps..."
+  - "It appears..."
+  - Emoji or casual punctuation
+  - Verbose explanations unless critical
+
+structure:
+  answer_first: true
+  citation_style: "[policy_id#page]"
+  fallback_phrase: "Insufficient evidence to determine [specific aspect]"
