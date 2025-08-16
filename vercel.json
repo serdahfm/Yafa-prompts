@@ -10,7 +10,10 @@
     },
     {
       "src": "api/**/*.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "maxDuration": 30
+      }
     }
   ],
   "routes": [
@@ -24,10 +27,5 @@
     }
   ],
   "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "functions": {
-    "api/**/*.ts": {
-      "maxDuration": 30
-    }
-  }
+  "buildCommand": "npm run build"
 }
