@@ -106,7 +106,7 @@ export class MemoryCache<T> {
 }
 
 // Global prompt cache instance
-export const promptCache = new MemoryCache<string>(15) // 15 minutes TTL
+export const promptCache = new MemoryCache<any>(15) // 15 minutes TTL
 
 // Cleanup expired entries every 5 minutes
 setInterval(() => {

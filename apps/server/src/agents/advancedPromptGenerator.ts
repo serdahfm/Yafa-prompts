@@ -382,7 +382,7 @@ Output Format:
       'Zero-Shot Optimization': '\n\n--- Technique Note ---\nThis prompt uses Zero-Shot optimization with rich context and specific instructions for effective performance without examples.'
     }
 
-    return techniquesUsed.map(technique => explanations[technique] || '').join('')
+    return techniquesUsed.map(technique => explanations[technique as keyof typeof explanations] || '').join('')
   }
 
   private estimateTokens(prompt: string): number {

@@ -73,7 +73,8 @@ router.post('/', async (req, res) => {
   const cacheKey = { input, mode: finalMode, yafa: !!yafa, language: language || 'en' }
   
   // Check cache first
-  const cachedResult = promptCache.get(cacheKey)
+  const cacheKeyString = JSON.stringify(cacheKey)
+  const cachedResult = promptCache.get(cacheKeyString)
   if (cachedResult) {
     console.log('Cache hit for prompt generation')
     // If cached result is old format (just string), upgrade it
@@ -86,7 +87,11 @@ router.post('/', async (req, res) => {
         modeDetection
       })
     }
-    return res.json({ ...cachedResult, cached: true, modeDetection })
+    return res.json({ 
+      ...(typeof cachedResult === 'object' ? cachedResult : {}), 
+      cached: true, 
+      modeDetection 
+    })
   }
   
   console.log('Cache miss - generating new prompt')
@@ -130,8 +135,9 @@ router.post('/', async (req, res) => {
       finalMode
     }
     
-    // Cache the result for future requests
-    promptCache.set(cacheKey, enhancedResult, 15) // Cache for 15 minutes
+    // Cache the result for future requests (cache key as string)
+    const cacheKeyString = JSON.stringify(cacheKey)
+    promptCache.set(cacheKeyString, enhancedResult, 15) // Cache for 15 minutes
     
     res.json(enhancedResult)
   } catch (e: any) {

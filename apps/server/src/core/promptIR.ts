@@ -67,7 +67,7 @@ export type ChainOfThoughtConfig = z.infer<typeof ChainOfThoughtConfigSchema>
 
 export const FewShotConfigSchema = z.object({
   enabled: z.boolean().default(false),
-  exampleCount: z.enum([2, 3, 5]).default(3),
+  exampleCount: z.number().min(2).max(5).default(3),
   qualityLevel: z.enum(['basic', 'intermediate', 'expert']).default('expert'),
   domainSpecific: z.boolean().default(true),
   includeCounterExamples: z.boolean().default(false)
