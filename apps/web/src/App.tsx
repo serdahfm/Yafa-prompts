@@ -46,12 +46,20 @@ interface QualityScore {
   confidence: number
 }
 
+interface QualityMetadata {
+  iterations: number
+  improvementLog: string[]
+  qualityThresholdMet: boolean
+}
+
 interface Message {
   id: string
   type: 'user' | 'assistant'
   content: string
   timestamp: Date
   quality?: QualityScore | null
+  qualityMetadata?: QualityMetadata | null
+  modeDetection?: ModeDetectionResult
   version?: string
   feedbackSubmitted?: boolean
 }
@@ -66,6 +74,129 @@ interface ModeDetectionResult {
     mode: Mode
     confidence: number
   }>
+}
+
+const RecommendationInput = ({ recommendation, onApply }: { 
+  recommendation: string, 
+  onApply: (rec: string, userInput?: string) => void 
+}) => {
+  const [userInput, setUserInput] = useState('')
+  const [showInput, setShowInput] = useState(false)
+
+  const handleApply = () => {
+    onApply(recommendation, userInput.trim() || undefined)
+    setUserInput('')
+    setShowInput(false)
+  }
+
+  const handleAddDetails = () => {
+    setShowInput(true)
+  }
+
+  return (
+    <div style={{
+      border: '1px solid var(--border-color)',
+      borderRadius: '6px',
+      padding: '8px',
+      background: 'var(--bg-tertiary)'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: showInput ? '8px' : '0' }}>
+        <span style={{
+          flex: 1,
+          fontSize: '11px',
+          color: 'var(--text-primary)',
+          lineHeight: '1.4'
+        }}>
+          💡 {recommendation}
+        </span>
+        <button
+          onClick={handleAddDetails}
+          style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-primary)',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          ✏️ Add Details
+        </button>
+        <button
+          onClick={handleApply}
+          style={{
+            background: 'var(--accent-color)',
+            border: 'none',
+            color: 'white',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '10px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          🚀 Apply
+        </button>
+      </div>
+      
+      {showInput && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <textarea
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            style={{
+              background: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
+              padding: '6px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              minHeight: '40px',
+              resize: 'vertical',
+              outline: 'none'
+            }}
+            placeholder="Add your specific details here..."
+            autoFocus
+          />
+          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => {
+                setUserInput('')
+                setShowInput(false)
+              }}
+              style={{
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-secondary)',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                fontSize: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleApply}
+              style={{
+                background: 'var(--accent-color)',
+                border: 'none',
+                color: 'white',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                fontSize: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              🚀 Apply with Details
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function App() {
@@ -164,6 +295,7 @@ export default function App() {
       content: data.prompt || 'No response generated',
       timestamp: new Date(),
       quality: data.quality || null,
+      qualityMetadata: data.qualityMetadata || null,
       version: data.version || '1.0.0'
     }
     
@@ -226,7 +358,7 @@ export default function App() {
     }
   }
 
-  const QualityIndicator = ({ quality }: { quality: QualityScore }) => {
+  const QualityIndicator = ({ quality, messageContent }: { quality: QualityScore, messageContent: string }) => {
     const getScoreColor = (score: number) => {
       if (score >= 90) return '#10b981' // green
       if (score >= 75) return '#f59e0b' // yellow
@@ -283,20 +415,102 @@ export default function App() {
             <summary style={{ 
               color: '#fbbf24', 
               cursor: 'pointer', 
-              fontSize: '11px' 
+              fontSize: '12px',
+              fontWeight: '600'
             }}>
-              Recommendations ({quality.recommendations.length})
+              💡 Click to Apply Recommendations ({quality.recommendations.length})
             </summary>
-            <ul style={{ 
-              margin: '4px 0 0 16px', 
-              color: '#d1d5db',
-              fontSize: '11px',
-              lineHeight: '1.4'
+            <div style={{ 
+              margin: '8px 0 0 0', 
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px'
             }}>
+              <div style={{
+                fontSize: '10px',
+                color: 'var(--text-secondary)',
+                fontStyle: 'italic',
+                marginBottom: '8px'
+              }}>
+                💡 Apply recommendations as-is, or add your specific details first:
+              </div>
+              
+
+              
               {quality.recommendations.map((rec, i) => (
-                <li key={i}>{rec}</li>
+                <RecommendationInput
+                  key={i}
+                  recommendation={rec}
+                  onApply={(recommendation, userDetails) => applyRecommendation(recommendation, messageContent, userDetails)}
+                />
               ))}
-            </ul>
+            </div>
+          </details>
+        )}
+      </div>
+    )
+  }
+
+  const QualityMetadataDisplay = ({ qualityMetadata }: { qualityMetadata: QualityMetadata }) => {
+    const getIterationColor = (iterations: number) => {
+      if (iterations === 1) return '#10b981' // green - perfect first try
+      if (iterations <= 2) return '#f59e0b' // yellow - needed refinement
+      return '#ef4444' // red - multiple refinements needed
+    }
+
+    return (
+      <div style={{ 
+        marginTop: '6px', 
+        padding: '6px 8px', 
+        background: 'rgba(59, 130, 246, 0.1)', 
+        borderRadius: '4px',
+        fontSize: '11px',
+        border: '1px solid rgba(59, 130, 246, 0.2)'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          marginBottom: '4px'
+        }}>
+          <span style={{ color: '#60a5fa' }}>🎯 Quality Gate:</span>
+          <span style={{ 
+            color: qualityMetadata.qualityThresholdMet ? '#10b981' : '#f59e0b',
+            fontWeight: 'bold'
+          }}>
+            {qualityMetadata.qualityThresholdMet ? '✅ Threshold Met' : '⚠️ Below Threshold'}
+          </span>
+          <span style={{ 
+            color: getIterationColor(qualityMetadata.iterations),
+            fontSize: '10px'
+          }}>
+            ({qualityMetadata.iterations} iteration{qualityMetadata.iterations !== 1 ? 's' : ''})
+          </span>
+        </div>
+        
+        {qualityMetadata.improvementLog.length > 0 && (
+          <details style={{ marginTop: '4px' }}>
+            <summary style={{ 
+              color: '#93c5fd', 
+              cursor: 'pointer', 
+              fontSize: '10px'
+            }}>
+              📋 Improvement Log
+            </summary>
+            <div style={{ 
+              margin: '4px 0 0 12px',
+              color: '#d1d5db'
+            }}>
+              {qualityMetadata.improvementLog.map((log, i) => (
+                <div key={i} style={{ 
+                  fontSize: '10px', 
+                  marginBottom: '2px',
+                  opacity: 0.8
+                }}>
+                  • {log}
+                </div>
+              ))}
+            </div>
           </details>
         )}
       </div>
@@ -420,6 +634,76 @@ export default function App() {
     )
   }
 
+  const applyRecommendation = async (recommendation: string, originalPrompt: string, userDetails?: string) => {
+    console.log('🔄 Apply recommendation called:', { recommendation, originalPrompt, userDetails })
+    if (!originalPrompt.trim()) return
+    
+    setIsGenerating(true)
+    
+    // Add user message showing the applied recommendation
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: userDetails 
+        ? `🔄 Applying recommendation: "${recommendation}"\n📝 With details: ${userDetails}`
+        : `🔄 Applying recommendation: "${recommendation}"`,
+      timestamp: new Date()
+    }
+    
+    setMessages(prev => [...prev, userMessage])
+    
+    try {
+      const res = await fetch('/api/improve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          originalPrompt,
+          recommendation,
+          userDetails,
+          mode,
+          yafa
+        }),
+      })
+      
+      const data = await res.json()
+      console.log('📡 Improve API Response:', { status: res.status, data })
+      
+      // Handle server errors
+      if (!res.ok) {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: data.error || `Server error: ${res.status} ${res.statusText}`,
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, errorMessage])
+        return
+      }
+      
+      // Add successful improved prompt
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: data.improvedPrompt,
+        timestamp: new Date(),
+        version: 'improved'
+      }
+      
+      setMessages(prev => [...prev, assistantMessage])
+      
+    } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: `❌ Network error: ${error instanceof Error ? error.message : 'Failed to generate prompt'}`,
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   const clearConversation = () => {
     setMessages([])
   }
@@ -483,21 +767,58 @@ export default function App() {
           </button>
         </div>
         
-        <button
-          className={yafa ? 'yafa-button' : ''}
-          onClick={() => setShowSettings(!showSettings)}
-          style={{
-            background: 'transparent',
-            border: `1px solid var(--border-color)`,
-            color: 'var(--text-primary)',
-            padding: '8px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease'
-          }}
-        >
-          ⚙️
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* YAFA Mode Toggle */}
+          <label 
+            className={yafa ? 'yafa-glow' : ''}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: '14px',
+              padding: yafa ? '8px 12px' : '6px 8px',
+              borderRadius: '8px',
+              transition: 'all 0.3s ease',
+              cursor: 'pointer',
+              border: yafa ? '1px solid var(--accent-color)' : '1px solid var(--border-color)',
+              background: yafa ? 'rgba(220, 38, 38, 0.1)' : 'var(--bg-secondary)'
+            }}>
+            <input 
+              type="checkbox" 
+              checked={yafa} 
+              onChange={(e) => setYafa(e.target.checked)}
+              style={{ 
+                transform: 'scale(1.2)',
+                accentColor: yafa ? '#dc2626' : '#6b7280'
+              }}
+            />
+            <span 
+              className={yafa ? 'yafa-text' : ''}
+              style={{ 
+                color: yafa ? '#dc2626' : 'var(--text-secondary)',
+                fontWeight: yafa ? 'bold' : 'normal',
+                transition: 'all 0.3s ease'
+              }}>
+              YAFA {yafa ? '🔥' : '⚪'}
+            </span>
+          </label>
+          
+          <button
+            className={yafa ? 'yafa-button' : ''}
+            onClick={() => setShowSettings(!showSettings)}
+            style={{
+              background: 'transparent',
+              border: `1px solid var(--border-color)`,
+              color: 'var(--text-primary)',
+              padding: '8px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            ⚙️
+          </button>
+        </div>
       </header>
 
       {/* Settings Panel */}
@@ -580,40 +901,12 @@ export default function App() {
               </select>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <label 
-                className={yafa ? 'yafa-glow' : ''}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: 8, 
-                  fontSize: '14px',
-                  padding: yafa ? '8px 12px' : '4px',
-                  borderRadius: '8px',
-                  transition: 'all 0.3s ease'
-                }}>
-                <input 
-                  type="checkbox" 
-                  checked={yafa} 
-                  onChange={(e) => setYafa(e.target.checked)}
-                  style={{ 
-                    transform: 'scale(1.2)',
-                    accentColor: yafa ? '#dc2626' : '#6b7280'
-                  }}
-                />
-                <span 
-                  className={yafa ? 'yafa-text' : ''}
-                  style={{ 
-                    color: yafa ? '#fecaca' : 'var(--text-secondary)',
-                    fontWeight: yafa ? 'bold' : 'normal',
-                    transition: 'all 0.3s ease'
-                  }}>
-                  YAFA Mode {yafa ? '🔥⚡' : '⚪'}
-                </span>
-              </label>
-              
-              {yafa && (
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13px', marginLeft: '24px' }}>
+                        {yafa && (
+              <div>
+                <label style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
+                  Auto-Detection:
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '13px' }}>
                   <input 
                     type="checkbox" 
                     checked={autoDetectMode} 
@@ -624,8 +917,8 @@ export default function App() {
                     🤖 Auto-detect professional mode from input
                   </span>
                 </label>
-              )}
-            </div>
+              </div>
+            )}
           </div>
           
           {/* Mode Detection Results */}
@@ -734,39 +1027,7 @@ export default function App() {
                 Transform your ideas into structured, professional prompts optimized for AI models. 
                 Just describe what you need and I'll create the perfect prompt for you.
               </p>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-                gap: '12px',
-                width: '100%',
-                maxWidth: '600px'
-              }}>
-                {[
-                  "Create a research methodology for analyzing user feedback",
-                  "Design a technical implementation plan for a new feature", 
-                  "Generate a business analysis framework for market research"
-                ].map((example, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setInput(example)}
-                    style={{
-                      background: 'var(--bg-secondary)',
-                      border: `1px solid var(--border-color)`,
-                      color: 'var(--text-primary)',
-                      padding: '12px 16px',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
-                  >
-                    {example}
-              </button>
-            ))}
-          </div>
+              
             </div>
           ) : (
             // Chat Messages
@@ -827,7 +1088,8 @@ export default function App() {
             }}>
               {message.content}
             </div>
-            {message.quality && <QualityIndicator quality={message.quality} />}
+            {message.quality && <QualityIndicator quality={message.quality} messageContent={message.content} />}
+            {message.qualityMetadata && <QualityMetadataDisplay qualityMetadata={message.qualityMetadata} />}
             <FeedbackWidget messageId={message.id} feedbackSubmitted={message.feedbackSubmitted} />
           </div>
         ) : (

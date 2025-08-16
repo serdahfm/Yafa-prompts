@@ -1,14 +1,12 @@
-import { Router } from 'express'
+import { VercelRequest, VercelResponse } from '@vercel/node'
 import { z } from 'zod'
-import { createInitialIR, Mode } from '../core/promptIR'
-import { runPipeline } from '../core/stateMachine'
-import { promptCache } from '../providers/cache'
-import { qualityScorer } from '../agents/qualityScorer'
-import { modeDetectionAgent } from '../agents/modeDetectionAgent'
-import { trackAnalytics } from './analytics'
 import crypto from 'crypto'
 
-const router = Router()
+// Import all the necessary modules from the shared lib
+import { createInitialIR, Mode } from '../lib/core/promptIR'
+import { runPipeline } from '../lib/core/stateMachine'
+import { promptCache } from '../lib/providers/cache'
+import { modeDetectionAgent } from '../lib/agents/modeDetectionAgent'
 
 const GenerateSchema = z.object({
   input: z.string().min(1),
@@ -18,9 +16,31 @@ const GenerateSchema = z.object({
   autoDetectMode: z.boolean().optional(),
 })
 
-router.post('/', async (req, res) => {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  )
+
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    res.status(200).end()
+    return
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
+
   const parse = GenerateSchema.safeParse(req.body)
-  if (!parse.success) return res.status(400).json({ error: 'Invalid body' })
+  if (!parse.success) {
+    return res.status(400).json({ error: 'Invalid body' })
+  }
+
   const { input, mode, yafa, language, autoDetectMode } = parse.data
   
   let finalMode = mode as Mode
@@ -48,7 +68,7 @@ router.post('/', async (req, res) => {
       if (error instanceof Error && error.message.includes('LLM_CONFIGURATION_REQUIRED')) {
         return res.status(500).json({ 
           error: 'LLM_CONFIGURATION_REQUIRED',
-          message: 'YAFA auto-detection requires LLM access. Please configure OPENAI_API_KEY or ANTHROPIC_API_KEY environment variables.',
+          message: 'YAFA requires LLM access for intelligent prompt generation. Please configure API keys.',
           setupInstructions: {
             openai: 'Get API key from https://platform.openai.com/api-keys',
             anthropic: 'Get API key from https://console.anthropic.com/settings/keys',
@@ -57,26 +77,19 @@ router.post('/', async (req, res) => {
         })
       }
       
-      // Fall back to provided mode for other errors
-      modeDetection = {
-        wasAutoDetected: false,
-        detectedMode: undefined,
-        confidence: 0,
-        reasoning: 'Auto-detection failed, using manual selection',
-        keywords: [],
-        alternativeModes: []
-      }
+      // For other auto-detection errors, continue with original mode
+      console.log(`Continuing with original mode: ${mode}`)
+      finalMode = mode
     }
   }
   
-  // Create cache key from request parameters (include final mode for caching)
+  // Create cache key from request parameters
   const cacheKey = { input, mode: finalMode, yafa: !!yafa, language: language || 'en' }
   
   // Check cache first
   const cachedResult = promptCache.get(cacheKey)
   if (cachedResult) {
     console.log('Cache hit for prompt generation')
-    // If cached result is old format (just string), upgrade it
     if (typeof cachedResult === 'string') {
       return res.json({ 
         prompt: cachedResult, 
@@ -110,9 +123,6 @@ router.post('/', async (req, res) => {
     const qualityIterations = finalIR.qualityMetadata?.iterations || 1
     const improvementLog = finalIR.qualityMetadata?.improvementLog || []
     
-    // Track analytics (use final mode for analytics)
-    trackAnalytics(finalMode, responseTime, qualityScore?.overall, true)
-    
     // Enhanced result with quality metrics
     const enhancedResult = {
       prompt: result.prompt,
@@ -136,7 +146,6 @@ router.post('/', async (req, res) => {
     res.json(enhancedResult)
   } catch (e: any) {
     const responseTime = Date.now() - startTime
-    trackAnalytics(finalMode, responseTime, undefined, false)
     
     // Handle LLM configuration errors with helpful messages
     if (e?.message?.includes('LLM_CONFIGURATION_REQUIRED')) {
@@ -153,9 +162,4 @@ router.post('/', async (req, res) => {
     
     res.status(500).json({ error: e?.message || 'Pipeline error' })
   }
-})
-
-export default router
-
-
-
+}

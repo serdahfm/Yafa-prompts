@@ -42,3 +42,4 @@ temp/
 
 # Test artifacts
 test-results/
+.vercel
