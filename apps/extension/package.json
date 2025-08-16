@@ -1,0 +1,10 @@
+{
+  "name": "yafa-prompts-extension",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "zip": "cd .. && zip -r ../yafa-ms-extension.zip extension -x \"*.DS_Store\""
+  }
+}
+
+

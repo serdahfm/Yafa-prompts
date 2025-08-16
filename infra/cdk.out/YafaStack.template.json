@@ -1,0 +1,1930 @@
+{
+ "Resources": {
+  "YafaVpc9C67CA60": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/Resource"
+   }
+  },
+  "YafaVpcPublicSubnet1SubnetA1CCD3B6": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.0.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc/PublicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PublicSubnet1/Subnet"
+   }
+  },
+  "YafaVpcPublicSubnet1RouteTableEA97C13B": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc/PublicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PublicSubnet1/RouteTable"
+   }
+  },
+  "YafaVpcPublicSubnet1RouteTableAssociation52B3A6AA": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "YafaVpcPublicSubnet1RouteTableEA97C13B"
+    },
+    "SubnetId": {
+     "Ref": "YafaVpcPublicSubnet1SubnetA1CCD3B6"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PublicSubnet1/RouteTableAssociation"
+   }
+  },
+  "YafaVpcPublicSubnet1DefaultRoute4165DC00": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "YafaVpcIGW95AE1E22"
+    },
+    "RouteTableId": {
+     "Ref": "YafaVpcPublicSubnet1RouteTableEA97C13B"
+    }
+   },
+   "DependsOn": [
+    "YafaVpcVPCGW154B0FE9"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PublicSubnet1/DefaultRoute"
+   }
+  },
+  "YafaVpcPublicSubnet2Subnet7B463410": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.1.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc/PublicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PublicSubnet2/Subnet"
+   }
+  },
+  "YafaVpcPublicSubnet2RouteTable3D56D029": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc/PublicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PublicSubnet2/RouteTable"
+   }
+  },
+  "YafaVpcPublicSubnet2RouteTableAssociation110D1929": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "YafaVpcPublicSubnet2RouteTable3D56D029"
+    },
+    "SubnetId": {
+     "Ref": "YafaVpcPublicSubnet2Subnet7B463410"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PublicSubnet2/RouteTableAssociation"
+   }
+  },
+  "YafaVpcPublicSubnet2DefaultRoute2A550D7A": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "YafaVpcIGW95AE1E22"
+    },
+    "RouteTableId": {
+     "Ref": "YafaVpcPublicSubnet2RouteTable3D56D029"
+    }
+   },
+   "DependsOn": [
+    "YafaVpcVPCGW154B0FE9"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PublicSubnet2/DefaultRoute"
+   }
+  },
+  "YafaVpcPrivateSubnet1Subnet92708193": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "CidrBlock": "10.0.2.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Isolated"
+     },
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc/PrivateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PrivateSubnet1/Subnet"
+   }
+  },
+  "YafaVpcPrivateSubnet1RouteTableDCFCFA1E": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc/PrivateSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PrivateSubnet1/RouteTable"
+   }
+  },
+  "YafaVpcPrivateSubnet1RouteTableAssociation40DE838E": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "YafaVpcPrivateSubnet1RouteTableDCFCFA1E"
+    },
+    "SubnetId": {
+     "Ref": "YafaVpcPrivateSubnet1Subnet92708193"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PrivateSubnet1/RouteTableAssociation"
+   }
+  },
+  "YafaVpcPrivateSubnet2SubnetB1C0A0BD": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "us-east-1b",
+    "CidrBlock": "10.0.3.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Isolated"
+     },
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc/PrivateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PrivateSubnet2/Subnet"
+   }
+  },
+  "YafaVpcPrivateSubnet2RouteTableC057D047": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc/PrivateSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PrivateSubnet2/RouteTable"
+   }
+  },
+  "YafaVpcPrivateSubnet2RouteTableAssociationFF566C42": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "YafaVpcPrivateSubnet2RouteTableC057D047"
+    },
+    "SubnetId": {
+     "Ref": "YafaVpcPrivateSubnet2SubnetB1C0A0BD"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/PrivateSubnet2/RouteTableAssociation"
+   }
+  },
+  "YafaVpcIGW95AE1E22": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/IGW"
+   }
+  },
+  "YafaVpcVPCGW154B0FE9": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "YafaVpcIGW95AE1E22"
+    },
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/VPCGW"
+   }
+  },
+  "YafaVpcRestrictDefaultSecurityGroupCustomResourceB90C4370": {
+   "Type": "Custom::VpcRestrictDefaultSG",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+      "Arn"
+     ]
+    },
+    "DefaultSecurityGroupId": {
+     "Fn::GetAtt": [
+      "YafaVpc9C67CA60",
+      "DefaultSecurityGroup"
+     ]
+    },
+    "Account": "821266815841"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/RestrictDefaultSecurityGroupCustomResource/Default"
+   }
+  },
+  "YafaVpcS3Endpoint4E59B978": {
+   "Type": "AWS::EC2::VPCEndpoint",
+   "Properties": {
+    "RouteTableIds": [
+     {
+      "Ref": "YafaVpcPublicSubnet1RouteTableEA97C13B"
+     },
+     {
+      "Ref": "YafaVpcPublicSubnet2RouteTable3D56D029"
+     },
+     {
+      "Ref": "YafaVpcPrivateSubnet1RouteTableDCFCFA1E"
+     },
+     {
+      "Ref": "YafaVpcPrivateSubnet2RouteTableC057D047"
+     }
+    ],
+    "ServiceName": {
+     "Fn::Join": [
+      "",
+      [
+       "com.amazonaws.",
+       {
+        "Ref": "AWS::Region"
+       },
+       ".s3"
+      ]
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcEndpointType": "Gateway",
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/S3Endpoint/Resource"
+   }
+  },
+  "YafaVpcecrdkrEndpointSecurityGroupCDA77A19": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "YafaStack/YafaVpc/ecr.dkrEndpoint/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": {
+       "Fn::GetAtt": [
+        "YafaVpc9C67CA60",
+        "CidrBlock"
+       ]
+      },
+      "Description": {
+       "Fn::Join": [
+        "",
+        [
+         "from ",
+         {
+          "Fn::GetAtt": [
+           "YafaVpc9C67CA60",
+           "CidrBlock"
+          ]
+         },
+         ":443"
+        ]
+       ]
+      },
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/ecr.dkrEndpoint/SecurityGroup/Resource"
+   }
+  },
+  "YafaVpcecrdkrEndpointBABDF746": {
+   "Type": "AWS::EC2::VPCEndpoint",
+   "Properties": {
+    "PrivateDnsEnabled": true,
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "YafaVpcecrdkrEndpointSecurityGroupCDA77A19",
+       "GroupId"
+      ]
+     }
+    ],
+    "ServiceName": "com.amazonaws.us-east-1.ecr.dkr",
+    "SubnetIds": [
+     {
+      "Ref": "YafaVpcPrivateSubnet1Subnet92708193"
+     },
+     {
+      "Ref": "YafaVpcPrivateSubnet2SubnetB1C0A0BD"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcEndpointType": "Interface",
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/ecr.dkrEndpoint/Resource"
+   }
+  },
+  "YafaVpcecrapiEndpointSecurityGroup67EBC34E": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "YafaStack/YafaVpc/ecr.apiEndpoint/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": {
+       "Fn::GetAtt": [
+        "YafaVpc9C67CA60",
+        "CidrBlock"
+       ]
+      },
+      "Description": {
+       "Fn::Join": [
+        "",
+        [
+         "from ",
+         {
+          "Fn::GetAtt": [
+           "YafaVpc9C67CA60",
+           "CidrBlock"
+          ]
+         },
+         ":443"
+        ]
+       ]
+      },
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/ecr.apiEndpoint/SecurityGroup/Resource"
+   }
+  },
+  "YafaVpcecrapiEndpointF57E14B2": {
+   "Type": "AWS::EC2::VPCEndpoint",
+   "Properties": {
+    "PrivateDnsEnabled": true,
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "YafaVpcecrapiEndpointSecurityGroup67EBC34E",
+       "GroupId"
+      ]
+     }
+    ],
+    "ServiceName": "com.amazonaws.us-east-1.ecr.api",
+    "SubnetIds": [
+     {
+      "Ref": "YafaVpcPrivateSubnet1Subnet92708193"
+     },
+     {
+      "Ref": "YafaVpcPrivateSubnet2SubnetB1C0A0BD"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcEndpointType": "Interface",
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/ecr.apiEndpoint/Resource"
+   }
+  },
+  "YafaVpclogsEndpointSecurityGroupDB54885D": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "YafaStack/YafaVpc/logsEndpoint/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": {
+       "Fn::GetAtt": [
+        "YafaVpc9C67CA60",
+        "CidrBlock"
+       ]
+      },
+      "Description": {
+       "Fn::Join": [
+        "",
+        [
+         "from ",
+         {
+          "Fn::GetAtt": [
+           "YafaVpc9C67CA60",
+           "CidrBlock"
+          ]
+         },
+         ":443"
+        ]
+       ]
+      },
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/logsEndpoint/SecurityGroup/Resource"
+   }
+  },
+  "YafaVpclogsEndpointEF91155B": {
+   "Type": "AWS::EC2::VPCEndpoint",
+   "Properties": {
+    "PrivateDnsEnabled": true,
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "YafaVpclogsEndpointSecurityGroupDB54885D",
+       "GroupId"
+      ]
+     }
+    ],
+    "ServiceName": "com.amazonaws.us-east-1.logs",
+    "SubnetIds": [
+     {
+      "Ref": "YafaVpcPrivateSubnet1Subnet92708193"
+     },
+     {
+      "Ref": "YafaVpcPrivateSubnet2SubnetB1C0A0BD"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcEndpointType": "Interface",
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/logsEndpoint/Resource"
+   }
+  },
+  "YafaVpcsecretsmanagerEndpointSecurityGroup78051EC9": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "YafaStack/YafaVpc/secretsmanagerEndpoint/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": {
+       "Fn::GetAtt": [
+        "YafaVpc9C67CA60",
+        "CidrBlock"
+       ]
+      },
+      "Description": {
+       "Fn::Join": [
+        "",
+        [
+         "from ",
+         {
+          "Fn::GetAtt": [
+           "YafaVpc9C67CA60",
+           "CidrBlock"
+          ]
+         },
+         ":443"
+        ]
+       ]
+      },
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/secretsmanagerEndpoint/SecurityGroup/Resource"
+   }
+  },
+  "YafaVpcsecretsmanagerEndpoint4ED7CD82": {
+   "Type": "AWS::EC2::VPCEndpoint",
+   "Properties": {
+    "PrivateDnsEnabled": true,
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "YafaVpcsecretsmanagerEndpointSecurityGroup78051EC9",
+       "GroupId"
+      ]
+     }
+    ],
+    "ServiceName": "com.amazonaws.us-east-1.secretsmanager",
+    "SubnetIds": [
+     {
+      "Ref": "YafaVpcPrivateSubnet1Subnet92708193"
+     },
+     {
+      "Ref": "YafaVpcPrivateSubnet2SubnetB1C0A0BD"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcEndpointType": "Interface",
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/secretsmanagerEndpoint/Resource"
+   }
+  },
+  "YafaVpcstsEndpointSecurityGroup0C5BDBE8": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "YafaStack/YafaVpc/stsEndpoint/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": {
+       "Fn::GetAtt": [
+        "YafaVpc9C67CA60",
+        "CidrBlock"
+       ]
+      },
+      "Description": {
+       "Fn::Join": [
+        "",
+        [
+         "from ",
+         {
+          "Fn::GetAtt": [
+           "YafaVpc9C67CA60",
+           "CidrBlock"
+          ]
+         },
+         ":443"
+        ]
+       ]
+      },
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/stsEndpoint/SecurityGroup/Resource"
+   }
+  },
+  "YafaVpcstsEndpoint24266AE4": {
+   "Type": "AWS::EC2::VPCEndpoint",
+   "Properties": {
+    "PrivateDnsEnabled": true,
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "YafaVpcstsEndpointSecurityGroup0C5BDBE8",
+       "GroupId"
+      ]
+     }
+    ],
+    "ServiceName": "com.amazonaws.us-east-1.sts",
+    "SubnetIds": [
+     {
+      "Ref": "YafaVpcPrivateSubnet1Subnet92708193"
+     },
+     {
+      "Ref": "YafaVpcPrivateSubnet2SubnetB1C0A0BD"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "YafaStack/YafaVpc"
+     }
+    ],
+    "VpcEndpointType": "Interface",
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaVpc/stsEndpoint/Resource"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ],
+    "Policies": [
+     {
+      "PolicyName": "Inline",
+      "PolicyDocument": {
+       "Version": "2012-10-17",
+       "Statement": [
+        {
+         "Effect": "Allow",
+         "Action": [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress"
+         ],
+         "Resource": [
+          {
+           "Fn::Join": [
+            "",
+            [
+             "arn:aws:ec2:us-east-1:821266815841:security-group/",
+             {
+              "Fn::GetAtt": [
+               "YafaVpc9C67CA60",
+               "DefaultSecurityGroup"
+              ]
+             }
+            ]
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-821266815841-us-east-1",
+     "S3Key": "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "__entrypoint__.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": "Lambda function for removing all inbound/outbound rules from the VPC default security group"
+   },
+   "DependsOn": [
+    "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200",
+    "aws:asset:property": "Code"
+   }
+  },
+  "YafaRepository6BD0B6D1": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "ImageTagMutability": "MUTABLE",
+    "RepositoryName": "yafa-ms"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaRepository/Resource"
+   }
+  },
+  "YafaCluster68E02502": {
+   "Type": "AWS::ECS::Cluster",
+   "Properties": {
+    "ClusterName": "yafa-cluster",
+    "ClusterSettings": [
+     {
+      "Name": "containerInsights",
+      "Value": "enabled"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaCluster/Resource"
+   }
+  },
+  "YafaTaskRoleA6730837": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaTaskRole/Resource"
+   }
+  },
+  "YafaTaskRoleDefaultPolicyE0F34FE2": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:secretsmanager:us-east-1:821266815841:secret:yafa/ms/llm/openai/api_key-??????"
+      },
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "YafaRepository6BD0B6D1",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "YafaLogGroupBCF323D4",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "YafaTaskRoleDefaultPolicyE0F34FE2",
+    "Roles": [
+     {
+      "Ref": "YafaTaskRoleA6730837"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaTaskRole/DefaultPolicy/Resource"
+   }
+  },
+  "YafaLogGroupBCF323D4": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ecs/yafa-ms",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaLogGroup/Resource"
+   }
+  },
+  "YafaTaskDef78C1C2B8": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Environment": [
+       {
+        "Name": "NODE_ENV",
+        "Value": "production"
+       },
+       {
+        "Name": "PORT",
+        "Value": "8787"
+       }
+      ],
+      "Essential": true,
+      "Image": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "YafaRepository6BD0B6D1",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "YafaRepository6BD0B6D1",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "YafaRepository6BD0B6D1"
+         },
+         ":latest"
+        ]
+       ]
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "YafaLogGroupBCF323D4"
+        },
+        "awslogs-stream-prefix": "yafa-ms",
+        "awslogs-region": "us-east-1"
+       }
+      },
+      "Name": "YafaContainer",
+      "PortMappings": [
+       {
+        "ContainerPort": 8787,
+        "Protocol": "tcp"
+       }
+      ],
+      "Secrets": [
+       {
+        "Name": "OPENAI_API_KEY",
+        "ValueFrom": "arn:aws:secretsmanager:us-east-1:821266815841:secret:yafa/ms/llm/openai/api_key"
+       }
+      ]
+     }
+    ],
+    "Cpu": "256",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "YafaTaskRoleA6730837",
+      "Arn"
+     ]
+    },
+    "Family": "YafaStackYafaTaskDef56D8C47F",
+    "Memory": "512",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "YafaTaskRoleA6730837",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaTaskDef/Resource"
+   }
+  },
+  "ALBSecurityGroup29A3BDEF": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "ALB Security Group",
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow HTTP traffic",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     },
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow HTTPS traffic",
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/ALBSecurityGroup/Resource"
+   }
+  },
+  "ALBSecurityGrouptoYafaStackServiceSecurityGroup67857C7A8787B0997F6E": {
+   "Type": "AWS::EC2::SecurityGroupEgress",
+   "Properties": {
+    "Description": "to YafaStackServiceSecurityGroup67857C7A:8787",
+    "DestinationSecurityGroupId": {
+     "Fn::GetAtt": [
+      "ServiceSecurityGroup61DE1A49",
+      "GroupId"
+     ]
+    },
+    "FromPort": 8787,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "ALBSecurityGroup29A3BDEF",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "ToPort": 8787
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/ALBSecurityGroup/to YafaStackServiceSecurityGroup67857C7A:8787"
+   }
+  },
+  "YafaALBFDA13079": {
+   "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+   "Properties": {
+    "LoadBalancerAttributes": [
+     {
+      "Key": "deletion_protection.enabled",
+      "Value": "false"
+     }
+    ],
+    "Scheme": "internet-facing",
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "ALBSecurityGroup29A3BDEF",
+       "GroupId"
+      ]
+     }
+    ],
+    "Subnets": [
+     {
+      "Ref": "YafaVpcPublicSubnet1SubnetA1CCD3B6"
+     },
+     {
+      "Ref": "YafaVpcPublicSubnet2Subnet7B463410"
+     }
+    ],
+    "Type": "application"
+   },
+   "DependsOn": [
+    "YafaVpcPublicSubnet1DefaultRoute4165DC00",
+    "YafaVpcPublicSubnet1RouteTableAssociation52B3A6AA",
+    "YafaVpcPublicSubnet2DefaultRoute2A550D7A",
+    "YafaVpcPublicSubnet2RouteTableAssociation110D1929"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaALB/Resource"
+   }
+  },
+  "YafaALBYafaListenerC8F55DAD": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "YafaTargetGroup8DE1FA0E"
+      },
+      "Type": "forward"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "YafaALBFDA13079"
+    },
+    "Port": 80,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaALB/YafaListener/Resource"
+   }
+  },
+  "ServiceSecurityGroup61DE1A49": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "ECS Service Security Group",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/ServiceSecurityGroup/Resource"
+   }
+  },
+  "ServiceSecurityGroupfromYafaStackALBSecurityGroup0A5981C487871E40DE01": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "from YafaStackALBSecurityGroup0A5981C4:8787",
+    "FromPort": 8787,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "ServiceSecurityGroup61DE1A49",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "ALBSecurityGroup29A3BDEF",
+      "GroupId"
+     ]
+    },
+    "ToPort": 8787
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/ServiceSecurityGroup/from YafaStackALBSecurityGroup0A5981C4:8787"
+   }
+  },
+  "YafaService7531A894": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "YafaCluster68E02502"
+    },
+    "DeploymentConfiguration": {
+     "Alarms": {
+      "AlarmNames": [],
+      "Enable": false,
+      "Rollback": false
+     },
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "DesiredCount": 1,
+    "EnableECSManagedTags": false,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "YafaContainer",
+      "ContainerPort": 8787,
+      "TargetGroupArn": {
+       "Ref": "YafaTargetGroup8DE1FA0E"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::GetAtt": [
+         "ServiceSecurityGroup61DE1A49",
+         "GroupId"
+        ]
+       }
+      ],
+      "Subnets": [
+       {
+        "Ref": "YafaVpcPrivateSubnet1Subnet92708193"
+       },
+       {
+        "Ref": "YafaVpcPrivateSubnet2SubnetB1C0A0BD"
+       }
+      ]
+     }
+    },
+    "TaskDefinition": {
+     "Ref": "YafaTaskDef78C1C2B8"
+    }
+   },
+   "DependsOn": [
+    "YafaALBYafaListenerC8F55DAD",
+    "YafaTaskRoleDefaultPolicyE0F34FE2",
+    "YafaTaskRoleA6730837"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaService/Service"
+   }
+  },
+  "YafaTargetGroup8DE1FA0E": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckIntervalSeconds": 30,
+    "HealthCheckPath": "/api/health",
+    "HealthyThresholdCount": 2,
+    "Port": 8787,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "UnhealthyThresholdCount": 5,
+    "VpcId": {
+     "Ref": "YafaVpc9C67CA60"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaTargetGroup/Resource"
+   }
+  },
+  "YafaWebBucketDF41ECC0": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketName": "yafa-ms-web-821266815841",
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     }
+    ],
+    "WebsiteConfiguration": {
+     "ErrorDocument": "index.html",
+     "IndexDocument": "index.html"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaWebBucket/Resource"
+   }
+  },
+  "YafaWebBucketPolicy1EFA7C7F": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "YafaWebBucketDF41ECC0"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "YafaWebBucketDF41ECC0",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "YafaWebBucketDF41ECC0",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "s3:GetObject",
+       "Condition": {
+        "StringEquals": {
+         "AWS:SourceArn": {
+          "Fn::Join": [
+           "",
+           [
+            "arn:",
+            {
+             "Ref": "AWS::Partition"
+            },
+            ":cloudfront::",
+            {
+             "Ref": "AWS::AccountId"
+            },
+            ":distribution/",
+            {
+             "Ref": "YafaDistribution0228C876"
+            }
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "cloudfront.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::GetAtt": [
+            "YafaWebBucketDF41ECC0",
+            "Arn"
+           ]
+          },
+          "/*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaWebBucket/Policy/Resource"
+   }
+  },
+  "YafaWebBucketAutoDeleteObjectsCustomResourceE5CD3D68": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "YafaWebBucketDF41ECC0"
+    }
+   },
+   "DependsOn": [
+    "YafaWebBucketPolicy1EFA7C7F"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaWebBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-821266815841-us-east-1",
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "YafaWebBucketDF41ECC0"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "YafaDistributionOrigin1S3OriginAccessControlCDF95BAC": {
+   "Type": "AWS::CloudFront::OriginAccessControl",
+   "Properties": {
+    "OriginAccessControlConfig": {
+     "Name": "YafaStackYafaDistributionOrigin1S3OriginAccessControl1B6C6E06",
+     "OriginAccessControlOriginType": "s3",
+     "SigningBehavior": "always",
+     "SigningProtocol": "sigv4"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaDistribution/Origin1/S3OriginAccessControl/Resource"
+   }
+  },
+  "YafaDistribution0228C876": {
+   "Type": "AWS::CloudFront::Distribution",
+   "Properties": {
+    "DistributionConfig": {
+     "CacheBehaviors": [
+      {
+       "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+       "Compress": true,
+       "OriginRequestPolicyId": "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf",
+       "PathPattern": "/api/*",
+       "TargetOriginId": "YafaStackYafaDistributionOrigin261ADDF59",
+       "ViewerProtocolPolicy": "redirect-to-https"
+      }
+     ],
+     "CustomErrorResponses": [
+      {
+       "ErrorCode": 404,
+       "ResponseCode": 200,
+       "ResponsePagePath": "/index.html"
+      }
+     ],
+     "DefaultCacheBehavior": {
+      "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+      "Compress": true,
+      "TargetOriginId": "YafaStackYafaDistributionOrigin1F1400BAA",
+      "ViewerProtocolPolicy": "redirect-to-https"
+     },
+     "DefaultRootObject": "index.html",
+     "Enabled": true,
+     "HttpVersion": "http2",
+     "IPV6Enabled": true,
+     "Origins": [
+      {
+       "DomainName": {
+        "Fn::GetAtt": [
+         "YafaWebBucketDF41ECC0",
+         "RegionalDomainName"
+        ]
+       },
+       "Id": "YafaStackYafaDistributionOrigin1F1400BAA",
+       "OriginAccessControlId": {
+        "Fn::GetAtt": [
+         "YafaDistributionOrigin1S3OriginAccessControlCDF95BAC",
+         "Id"
+        ]
+       },
+       "S3OriginConfig": {
+        "OriginAccessIdentity": ""
+       }
+      },
+      {
+       "CustomOriginConfig": {
+        "OriginProtocolPolicy": "http-only",
+        "OriginSSLProtocols": [
+         "TLSv1.2"
+        ]
+       },
+       "DomainName": {
+        "Fn::GetAtt": [
+         "YafaALBFDA13079",
+         "DNSName"
+        ]
+       },
+       "Id": "YafaStackYafaDistributionOrigin261ADDF59"
+      }
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaDistribution/Resource"
+   }
+  },
+  "YafaUserPool5F49AE7C": {
+   "Type": "AWS::Cognito::UserPool",
+   "Properties": {
+    "AccountRecoverySetting": {
+     "RecoveryMechanisms": [
+      {
+       "Name": "verified_email",
+       "Priority": 1
+      }
+     ]
+    },
+    "AdminCreateUserConfig": {
+     "AllowAdminCreateUserOnly": true
+    },
+    "AutoVerifiedAttributes": [
+     "email"
+    ],
+    "EmailVerificationMessage": "The verification code to your new account is {####}",
+    "EmailVerificationSubject": "Verify your new account",
+    "Policies": {
+     "PasswordPolicy": {
+      "MinimumLength": 12,
+      "RequireLowercase": true,
+      "RequireNumbers": true,
+      "RequireSymbols": true,
+      "RequireUppercase": true
+     }
+    },
+    "SmsVerificationMessage": "The verification code to your new account is {####}",
+    "UserPoolName": "yafa-ms-users",
+    "UsernameAttributes": [
+     "email"
+    ],
+    "VerificationMessageTemplate": {
+     "DefaultEmailOption": "CONFIRM_WITH_CODE",
+     "EmailMessage": "The verification code to your new account is {####}",
+     "EmailSubject": "Verify your new account",
+     "SmsMessage": "The verification code to your new account is {####}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaUserPool/Resource"
+   }
+  },
+  "YafaUserPoolClient2086C1E1": {
+   "Type": "AWS::Cognito::UserPoolClient",
+   "Properties": {
+    "AllowedOAuthFlows": [
+     "implicit",
+     "code"
+    ],
+    "AllowedOAuthFlowsUserPoolClient": true,
+    "AllowedOAuthScopes": [
+     "profile",
+     "phone",
+     "email",
+     "openid",
+     "aws.cognito.signin.user.admin"
+    ],
+    "CallbackURLs": [
+     "https://example.com"
+    ],
+    "ClientName": "yafa-ms-client",
+    "ExplicitAuthFlows": [
+     "ALLOW_USER_PASSWORD_AUTH",
+     "ALLOW_USER_SRP_AUTH",
+     "ALLOW_REFRESH_TOKEN_AUTH"
+    ],
+    "GenerateSecret": false,
+    "SupportedIdentityProviders": [
+     "COGNITO"
+    ],
+    "UserPoolId": {
+     "Ref": "YafaUserPool5F49AE7C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/YafaUserPoolClient/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/31STW/bMAz9Lb2rWpPusmOSdkWBAjPiLteBlhmPjSIaIpWgMPzfB38kdvd14nuPpEQ+aWmXi4W9u4Gz3LrycOupsE2u4A4GzvKjQbe0za52ZrMPu2xjslR4cnkqAmqnTWjLSfEVCo+TPmkrEXYEShyuxSaLdALF6YznoBgD6hMonuF9vHRkK1VwP48Y1IzKrnaPoayZgo6lV9qftAeH85ocXYqk70+RU91P+V/hsYoo8of8HHq9NeiibbZYs5By7KedWJcW22x8EsXY5S7wK8QKOlvk8IB7CnQx5XeFgwIFjDNt7M0xnsgNRg+wNQRH22x5sL+PGXty/VgDao3nSmzzwtV14QtuDXoQJecZygI8BEehOi1ts6prT65/uReGct3nho0+8HkdiWIYay54ln+FWKFeZ5jR1si9bdbJHYYPMaIhTPvMeWuc51TuIwe1zQOJRipS71Z+/y1SRWHlHIp0fkb2Xf8/5HlzaxxXgZRt810wZjyUXPEFbDzh8P0+Km1rtiicYvdMSZSPE+3+yV9TWeQTlRjXIGhWIqi5QkWh6odOWidtTeAS7Zt8Oi3v7OKL/XzzJkS3MQWlI9rtEH8Bes2egNgDAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "YafaStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "ApiUrl": {
+   "Description": "API Load Balancer URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "http://",
+      {
+       "Fn::GetAtt": [
+        "YafaALBFDA13079",
+        "DNSName"
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  "WebUrl": {
+   "Description": "CloudFront Web URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Fn::GetAtt": [
+        "YafaDistribution0228C876",
+        "DomainName"
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  "RepositoryUri": {
+   "Description": "ECR Repository URI",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        4,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "YafaRepository6BD0B6D1",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".dkr.ecr.",
+      {
+       "Fn::Select": [
+        3,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "YafaRepository6BD0B6D1",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "YafaRepository6BD0B6D1"
+      }
+     ]
+    ]
+   }
+  },
+  "UserPoolId": {
+   "Description": "Cognito User Pool ID",
+   "Value": {
+    "Ref": "YafaUserPool5F49AE7C"
+   }
+  },
+  "UserPoolClientId": {
+   "Description": "Cognito User Pool Client ID",
+   "Value": {
+    "Ref": "YafaUserPoolClient2086C1E1"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

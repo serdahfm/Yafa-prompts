@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+require("source-map-support/register");
+const cdk = require("aws-cdk-lib");
+const yafa_stack_1 = require("../lib/yafa-stack");
+const app = new cdk.App();
+const account = process.env.CDK_DEFAULT_ACCOUNT || process.env.AWS_ACCOUNT_ID;
+const region = process.env.CDK_DEFAULT_REGION || process.env.AWS_DEFAULT_REGION || 'us-east-1';
+new yafa_stack_1.YafaStack(app, 'YafaStack', {
+    env: { account, region },
+    tags: {
+        Project: 'yafa-ms',
+        Environment: 'prod',
+        Owner: 'yafa-break-glass',
+    },
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXBwLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiYXBwLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUNBLHVDQUFxQztBQUNyQyxtQ0FBbUM7QUFDbkMsa0RBQThDO0FBRTlDLE1BQU0sR0FBRyxHQUFHLElBQUksR0FBRyxDQUFDLEdBQUcsRUFBRSxDQUFDO0FBRTFCLE1BQU0sT0FBTyxHQUFHLE9BQU8sQ0FBQyxHQUFHLENBQUMsbUJBQW1CLElBQUksT0FBTyxDQUFDLEdBQUcsQ0FBQyxjQUFjLENBQUM7QUFDOUUsTUFBTSxNQUFNLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxrQkFBa0IsSUFBSSxPQUFPLENBQUMsR0FBRyxDQUFDLGtCQUFrQixJQUFJLFdBQVcsQ0FBQztBQUUvRixJQUFJLHNCQUFTLENBQUMsR0FBRyxFQUFFLFdBQVcsRUFBRTtJQUM5QixHQUFHLEVBQUUsRUFBRSxPQUFPLEVBQUUsTUFBTSxFQUFFO0lBQ3hCLElBQUksRUFBRTtRQUNKLE9BQU8sRUFBRSxTQUFTO1FBQ2xCLFdBQVcsRUFBRSxNQUFNO1FBQ25CLEtBQUssRUFBRSxrQkFBa0I7S0FDMUI7Q0FDRixDQUFDLENBQUMiLCJzb3VyY2VzQ29udGVudCI6WyIjIS91c3IvYmluL2VudiBub2RlXG5pbXBvcnQgJ3NvdXJjZS1tYXAtc3VwcG9ydC9yZWdpc3Rlcic7XG5pbXBvcnQgKiBhcyBjZGsgZnJvbSAnYXdzLWNkay1saWInO1xuaW1wb3J0IHsgWWFmYVN0YWNrIH0gZnJvbSAnLi4vbGliL3lhZmEtc3RhY2snO1xuXG5jb25zdCBhcHAgPSBuZXcgY2RrLkFwcCgpO1xuXG5jb25zdCBhY2NvdW50ID0gcHJvY2Vzcy5lbnYuQ0RLX0RFRkFVTFRfQUNDT1VOVCB8fCBwcm9jZXNzLmVudi5BV1NfQUNDT1VOVF9JRDtcbmNvbnN0IHJlZ2lvbiA9IHByb2Nlc3MuZW52LkNES19ERUZBVUxUX1JFR0lPTiB8fCBwcm9jZXNzLmVudi5BV1NfREVGQVVMVF9SRUdJT04gfHwgJ3VzLWVhc3QtMSc7XG5cbm5ldyBZYWZhU3RhY2soYXBwLCAnWWFmYVN0YWNrJywge1xuICBlbnY6IHsgYWNjb3VudCwgcmVnaW9uIH0sXG4gIHRhZ3M6IHtcbiAgICBQcm9qZWN0OiAneWFmYS1tcycsXG4gICAgRW52aXJvbm1lbnQ6ICdwcm9kJyxcbiAgICBPd25lcjogJ3lhZmEtYnJlYWstZ2xhc3MnLFxuICB9LFxufSk7XG4iXX0=

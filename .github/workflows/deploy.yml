@@ -1,0 +1,74 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+
+jobs:
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build applications
+      run: npm run build
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        
+    - name: Install AWS CDK
+      run: npm install -g aws-cdk
+      
+    - name: Deploy infrastructure
+      run: |
+        cd infra
+        npm ci
+        cdk deploy --require-approval never
+        
+    - name: Build and push Docker image
+      env:
+        AWS_DEFAULT_REGION: us-east-1
+      run: |
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
+        docker build -t yafa-prompts-server ./apps/server
+        docker tag yafa-prompts-server:latest $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/yafa-prompts-server:latest
+        docker push $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/yafa-prompts-server:latest
+        
+    - name: Post-deployment health check
+      run: |
+        # Wait for deployment to complete
+        sleep 30
+        
+        # Health check (replace with your actual endpoint)
+        # curl -f https://your-app-domain.com/api/health
+        
+        echo "Deployment completed successfully!"
+        
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Deployment successful"
+        else
+          echo "❌ Deployment failed"
+        fi

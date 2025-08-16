@@ -1,0 +1,28 @@
+{
+  "name": "yafa-prompts",
+  "private": true,
+  "version": "0.1.0",
+  "description": "YAFA-prompts monorepo - AI prompt engineering platform (web, server, extension, desktop)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm -w apps/web run build && npm -w apps/server run build",
+    "dev": "concurrently \"npm -w apps/server run dev\" \"npm -w apps/web run dev\"",
+    "dev:web": "npm -w apps/web run dev",
+    "dev:server": "npm -w apps/server run dev",
+    "test": "npm -w apps/web run test:run && npm -w apps/server run test:run",
+    "test:watch": "concurrently \"npm -w apps/web run test\" \"npm -w apps/server run test\"",
+    "vercel-build": "npm run build",
+    "start": "npm -w apps/server run start"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "concurrently": "^8.2.2",
+    "jsdom": "^26.1.0",
+    "vitest": "^3.2.4"
+  }
+}
