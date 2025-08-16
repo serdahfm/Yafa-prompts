@@ -1,14 +1,4 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/pages/api/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/apps/web/dist/$1"
-    }
-  ],
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build && cp -r apps/web/dist/* public/",
   "installCommand": "npm install"
 }
