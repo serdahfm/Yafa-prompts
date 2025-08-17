@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAFA Cartridge Interface</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        /* Chip-based domain detection UI */
+        .domain-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            min-height: 40px;
+            align-items: center;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .chip:hover {
+            background: #bbdefb;
+            transform: translateY(-1px);
+        }
+        .chip.primary {
+            background: #1976d2;
+            color: white;
+        }
+        .chip.overlay {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .chip.safety {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        .chip.confidence {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        .chip .remove {
+            margin-left: 4px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        .chip .remove:hover {
+            opacity: 1;
+        }
+        
+        /* Tooltip for rationale */
+        .chip[data-tooltip] {
+            position: relative;
+        }
+        .chip[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 5px;
+            max-width: 300px;
+            white-space: normal;
+        }
+        .chip[data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #333;
+            z-index: 1000;
+        }
+        
+        .placeholder-text {
+            color: #adb5bd;
+            font-style: italic;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 20px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .quick-action {
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-action:hover {
+            background: #e9ecef;
+        }
+        .quick-action.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .response {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .error {
+            background: #fff5f5;
+            border-left-color: #e74c3c;
+            color: #c0392b;
+        }
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+        }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        
+        .example-prompts {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .example-prompts h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .example-item {
+            margin: 8px 0;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+        .example-item:hover {
+            background: #e9ecef;
+        }
+        .example-item.chemistry {
+            border-left-color: #e74c3c;
+        }
+        .example-item.software {
+            border-left-color: #3498db;
+        }
+        .example-item.policy {
+            border-left-color: #f39c12;
+        }
+        .example-item.research {
+            border-left-color: #9b59b6;
+        }
+        
+        .composition-details {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+        .composition-details h5 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .composition-item {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 YAFA Cartridge Interface</h1>
+        <p class="subtitle">
+            Automatic domain detection with intelligent cartridge composition
+        </p>
+        
+        <form id="promptForm">
+            <div class="form-group">
+                <label for="question">Question or Task:</label>
+                <textarea id="question" rows="4" placeholder="What would you like to know or analyze? The system will automatically detect the domain and apply appropriate expertise..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>🎯 Detected Domains & Configuration:</label>
+                <div id="domainChips" class="domain-chips">
+                    <span class="placeholder-text">Type your question above to see automatic domain detection...</span>
+                </div>
+                <div id="compositionDetails" class="composition-details" style="display: none;"></div>
+            </div>
+            
+            <div class="controls">
+                <button type="submit">🚀 Generate Response</button>
+                <div class="quick-actions">
+                    <span class="quick-action" data-action="tighten">📝 Tighten</span>
+                    <span class="quick-action" data-action="expand">📚 Expand</span>
+                    <span class="quick-action" data-action="json">🔧 JSON</span>
+                    <span class="quick-action" data-action="outline">📋 Outline</span>
+                </div>
+            </div>
+        </form>
+        
+        <div class="example-prompts">
+            <h4>💡 Example Prompts (Click to try):</h4>
+            <div class="example-item chemistry" data-example="chemistry">
+                Plan variables/controls to assess catalyst stability in water; compare metrics.
+            </div>
+            <div class="example-item software" data-example="software">
+                Design API architecture for real-time data processing with 10k+ concurrent users.
+            </div>
+            <div class="example-item policy" data-example="policy">
+                What is the remote work equipment budget for new employees?
+            </div>
+            <div class="example-item research" data-example="research">
+                Systematic review methodology for evaluating machine learning bias in healthcare.
+            </div>
+        </div>
+        
+        <div id="response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        let currentRouting = null;
+        let debounceTimer = null;
+        
+        // Auto-detect domain as user types
+        document.getElementById('question').addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => detectDomain(e.target.value), 500);
+        });
+        
+        // Example prompt selection
+        document.querySelectorAll('.example-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const text = item.textContent.trim();
+                document.getElementById('question').value = text;
+                detectDomain(text);
+            });
+        });
+        
+        // Quick action handlers
+        document.querySelectorAll('.quick-action').forEach(action => {
+            action.addEventListener('click', () => {
+                const actionType = action.dataset.action;
+                handleQuickAction(actionType, action);
+            });
+        });
+        
+        async function detectDomain(text) {
+            if (!text || text.length < 10) {
+                showPlaceholderChips();
+                return;
+            }
+            
+            try {
+                // Mock domain detection for now (would call real API)
+                const routing = mockDomainDetection(text);
+                currentRouting = routing;
+                updateChipsDisplay(routing);
+            } catch (error) {
+                console.error('Domain detection failed:', error);
+                showPlaceholderChips();
+            }
+        }
+        
+        function mockDomainDetection(text) {
+            const lowerText = text.toLowerCase();
+            
+            // Chemistry detection
+            if (lowerText.includes('catalyst') || lowerText.includes('stability') || 
+                lowerText.includes('molarity') || lowerText.includes('variables')) {
+                return {
+                    primary: 'chemistry',
+                    overlays: ['safety_core', 'phd_research'],
+                    safety_overlays: ['safety_core'],
+                    deliverable_guess: 'analysis',
+                    confidence: 0.93,
+                    matches: [{
+                        cartridge_id: 'chemistry',
+                        confidence: 0.93,
+                        rationale: 'High confidence: Keywords: catalyst, stability; Structure: analytical'
+                    }]
+                };
+            }
+            
+            // Software engineering detection
+            if (lowerText.includes('api') || lowerText.includes('architecture') || 
+                lowerText.includes('processing') || lowerText.includes('users')) {
+                return {
+                    primary: 'software_engineering',
+                    overlays: ['technical'],
+                    safety_overlays: [],
+                    deliverable_guess: 'implementation',
+                    confidence: 0.87,
+                    matches: [{
+                        cartridge_id: 'software_engineering',
+                        confidence: 0.87,
+                        rationale: 'High confidence: Keywords: API, architecture, processing; Technical context'
+                    }]
+                };
+            }
+            
+            // Policy detection
+            if (lowerText.includes('policy') || lowerText.includes('budget') || 
+                lowerText.includes('remote work') || lowerText.includes('employees')) {
+                return {
+                    primary: 'policies',
+                    overlays: ['executive'],
+                    safety_overlays: [],
+                    deliverable_guess: 'brief',
+                    confidence: 0.81,
+                    matches: [{
+                        cartridge_id: 'policies',
+                        confidence: 0.81,
+                        rationale: 'High confidence: Keywords: policy, budget, employees; Business context'
+                    }]
+                };
+            }
+            
+            // Research detection
+            if (lowerText.includes('methodology') || lowerText.includes('systematic') || 
+                lowerText.includes('review') || lowerText.includes('bias')) {
+                return {
+                    primary: 'general',
+                    overlays: ['phd_research'],
+                    safety_overlays: [],
+                    deliverable_guess: 'analysis',
+                    confidence: 0.76,
+                    matches: [{
+                        cartridge_id: 'general',
+                        confidence: 0.76,
+                        rationale: 'Medium confidence: Keywords: methodology, systematic; Academic context'
+                    }]
+                };
+            }
+            
+            // Default general
+            return {
+                primary: 'general',
+                overlays: [],
+                safety_overlays: [],
+                deliverable_guess: 'answer',
+                confidence: 0.45,
+                matches: [{
+                    cartridge_id: 'general',
+                    confidence: 0.45,
+                    rationale: 'Low confidence: General language patterns'
+                }]
+            };
+        }
+        
+        function updateChipsDisplay(routing) {
+            const chipsContainer = document.getElementById('domainChips');
+            const detailsContainer = document.getElementById('compositionDetails');
+            
+            chipsContainer.innerHTML = '';
+            
+            // Primary domain chip
+            const primaryChip = createChip(
+                routing.primary, 
+                'primary', 
+                routing.matches[0]?.rationale || 'Primary domain'
+            );
+            chipsContainer.appendChild(primaryChip);
+            
+            // Confidence chip
+            const confidenceChip = createChip(
+                `${Math.round(routing.confidence * 100)}%`,
+                'confidence',
+                'Detection confidence'
+            );
+            chipsContainer.appendChild(confidenceChip);
+            
+            // Overlay chips
+            routing.overlays.forEach(overlay => {
+                const isSafety = routing.safety_overlays.includes(overlay);
+                const chip = createChip(
+                    overlay.replace('_', ' '),
+                    isSafety ? 'safety' : 'overlay',
+                    isSafety ? 'Mandatory safety overlay' : 'Additional domain overlay',
+                    !isSafety // Can remove non-safety overlays
+                );
+                chipsContainer.appendChild(chip);
+            });
+            
+            // Deliverable guess
+            if (routing.deliverable_guess !== 'answer') {
+                const deliverableChip = createChip(
+                    routing.deliverable_guess,
+                    'overlay',
+                    'Suggested output format'
+                );
+                chipsContainer.appendChild(deliverableChip);
+            }
+            
+            // Show composition details
+            showCompositionDetails(routing);
+        }
+        
+        function createChip(text, type, tooltip, removable = false) {
+            const chip = document.createElement('span');
+            chip.className = `chip ${type}`;
+            chip.setAttribute('data-tooltip', tooltip);
+            
+            const icon = getChipIcon(type);
+            chip.innerHTML = `${icon} ${text}`;
+            
+            if (removable) {
+                chip.innerHTML += '<span class="remove">×</span>';
+                chip.querySelector('.remove').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeOverlay(text.replace(' ', '_'));
+                });
+            }
+            
+            return chip;
+        }
+        
+        function getChipIcon(type) {
+            const icons = {
+                'primary': '🎯',
+                'overlay': '📚',
+                'safety': '🛡️',
+                'confidence': '📊'
+            };
+            return icons[type] || '🔧';
+        }
+        
+        function showPlaceholderChips() {
+            const chipsContainer = document.getElementById('domainChips');
+            const detailsContainer = document.getElementById('compositionDetails');
+            
+            chipsContainer.innerHTML = '<span class="placeholder-text">Type your question above to see automatic domain detection...</span>';
+            detailsContainer.style.display = 'none';
+            currentRouting = null;
+        }
+        
+        function showCompositionDetails(routing) {
+            const detailsContainer = document.getElementById('compositionDetails');
+            
+            detailsContainer.innerHTML = `
+                <h5>🔧 Cartridge Composition:</h5>
+                <div class="composition-item">
+                    <strong>Primary:</strong> ${routing.primary} (${Math.round(routing.confidence * 100)}% confidence)
+                </div>
+                ${routing.overlays.length > 0 ? `
+                <div class="composition-item">
+                    <strong>Overlays:</strong> ${routing.overlays.join(', ')}
+                </div>
+                ` : ''}
+                ${routing.safety_overlays.length > 0 ? `
+                <div class="composition-item">
+                    <strong>Safety:</strong> ${routing.safety_overlays.join(', ')} (mandatory)
+                </div>
+                ` : ''}
+                <div class="composition-item">
+                    <strong>Output:</strong> ${routing.deliverable_guess}
+                </div>
+                <div class="composition-item">
+                    <strong>Precedence:</strong> Safety → Validators → Rubrics → Style → Templates
+                </div>
+            `;
+            
+            detailsContainer.style.display = 'block';
+        }
+        
+        function handleQuickAction(action, element) {
+            if (!currentRouting) return;
+            
+            // Toggle active state
+            document.querySelectorAll('.quick-action').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Modify current routing based on quick action
+            switch (action) {
+                case 'tighten':
+                    if (!currentRouting.overlays.includes('executive')) {
+                        currentRouting.overlays.push('executive');
+                    }
+                    break;
+                case 'expand':
+                    if (!currentRouting.overlays.includes('phd_research')) {
+                        currentRouting.overlays.push('phd_research');
+                    }
+                    break;
+                case 'json':
+                    currentRouting.deliverable_guess = 'json_spec';
+                    break;
+                case 'outline':
+                    currentRouting.deliverable_guess = 'outline';
+                    break;
+            }
+            
+            updateChipsDisplay(currentRouting);
+        }
+        
+        function removeOverlay(overlayName) {
+            if (!currentRouting) return;
+            
+            currentRouting.overlays = currentRouting.overlays.filter(o => o !== overlayName);
+            updateChipsDisplay(currentRouting);
+        }
+        
+        // Form submission
+        document.getElementById('promptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const question = document.getElementById('question').value;
+            const responseDiv = document.getElementById('response');
+            const submitButton = e.target.querySelector('button');
+            
+            // Show loading state
+            responseDiv.style.display = 'block';
+            responseDiv.className = 'response loading';
+            responseDiv.innerHTML = '🤔 Analyzing question and composing cartridges...';
+            submitButton.disabled = true;
+            
+            try {
+                const payload = { 
+                    question,
+                    routing: currentRouting // Send detected routing
+                };
+                
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    responseDiv.className = 'response';
+                    responseDiv.innerHTML = `
+                        <h3>✅ Response Generated</h3>
+                        <div style="background: white; padding: 15px; border-radius: 6px; margin: 10px 0; border-left: 3px solid #28a745;">
+                            <strong>Answer:</strong><br>
+                            ${data.answer}
+                        </div>
+                        ${data.citations && data.citations.length > 0 ? 
+                          `<p><strong>📚 Citations:</strong> ${data.citations.join(', ')}</p>` : 
+                          ''}
+                        ${currentRouting ? `
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 10px 0;">
+                            <strong>🎯 Applied Configuration:</strong><br>
+                            Primary: <code>${currentRouting.primary}</code><br>
+                            ${currentRouting.overlays.length > 0 ? `Overlays: <code>${currentRouting.overlays.join(', ')}</code><br>` : ''}
+                            Confidence: <code>${Math.round(currentRouting.confidence * 100)}%</code><br>
+                            Output Format: <code>${currentRouting.deliverable_guess}</code>
+                        </div>` : ''}
+                        <details style="margin-top: 15px;">
+                            <summary style="cursor: pointer;">📊 Full Generation Metadata</summary>
+                            <pre style="margin-top: 10px;">${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                responseDiv.className = 'response error';
+                responseDiv.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p>${error.message}</p>
+                `;
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+        
+        // Initialize with a demo
+        setTimeout(() => {
+            const demoText = "Plan variables/controls to assess catalyst stability in water; compare metrics.";
+            document.getElementById('question').value = demoText;
+            detectDomain(demoText);
+        }, 1000);
+    </script>
+</body>
+</html>

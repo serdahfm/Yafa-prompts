@@ -8,17 +8,18 @@
   },
   "scripts": {
     "build": "tsc",
+    "start": "PORT=3001 node dist/server.js",
     "dev": "tsx cli.ts",
-    "server": "npm run build && node dist/server.js",
-    "start": "npm run server",
-    "tunnel": "ngrok http 3000",
-    "test": "echo 'Tests skipped'",
+    "server": "npm run build && PORT=3001 node dist/server.js",
+    "tunnel": "ngrok http 3001",
+    "test": "./test-and-deploy.sh",
     "lint": "echo 'Linting skipped'",
     "smoke": "npm run build && node dist/cli.js smoke evals/golden.qa.jsonl",
     "eval": "npm run build && node dist/cli.js eval evals/golden.qa.jsonl",
     "demo": "npm run build && node dist/cli.js ask 'What is the travel policy for business trips?' --domain policies",
     "clean": "rm -rf dist",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "serve": "npm run build && npm start"
   },
   "keywords": [
     "prompt-engineering",
@@ -37,16 +38,18 @@
     "body-parser": "^2.2.0",
     "commander": "^11.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
     "js-yaml": "^4.1.0",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "openai": "^5.12.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "@types/js-yaml": "^4.0.5",
+    "@types/js-yaml": "^4.0.9",
     "@types/morgan": "^1.9.10",
     "@types/node": "^20.0.0",
     "tsx": "^3.12.0",

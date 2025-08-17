@@ -1,0 +1,99 @@
+id: software_engineering
+name: Software Engineering & Architecture
+description: Technical implementation guidance with best practices
+version: "1.0.0"
+
+# Auto-detection rules
+activators:
+  keywords:
+    - API
+    - REST
+    - GraphQL
+    - microservice
+    - throughput
+    - latency
+    - scalability
+    - deployment
+    - database
+    - authentication
+    - caching
+    - monitoring
+    - testing
+    - CI/CD
+    - docker
+    - kubernetes
+    - performance
+    - architecture
+    - framework
+    - library
+  units_regex: "(ms|μs|ns|MB|GB|TB|Hz|kHz|MHz|GHz|QPS|RPS)"
+  doc_shapes: ["rfc", "outline"]
+  file_extensions: ["py", "js", "ts", "java", "cpp", "go", "rs", "yaml", "json", "md"]
+  api_patterns: ["HTTP", "TCP", "UDP", "gRPC", "WebSocket"]
+  confidence_threshold: 0.6
+
+# Development safety
+safety:
+  forbid_procedures: false
+  forbid_harmful: true
+  redact_pii: true
+  topic_blocks:
+    - "malicious code"
+    - "security exploits"
+    - "data breaches"
+    - "unauthorized access"
+  required_disclaimers:
+    - "Follow security best practices"
+    - "Validate all user inputs"
+    - "Implement proper error handling"
+  max_risk_level: "medium"
+
+# Technical style
+style:
+  tone: "technical"
+  units: "SI"
+  citation_style: "ieee"
+  length_preference: "detailed"
+  structure: "sectioned"
+
+# Templates
+templates:
+  system: "templates/software_system.md"
+  user: "templates/software_user.md"
+  critic: "templates/software_critic.md"
+  outline: "templates/software_outline.md"
+  json_spec: "schemas/software_spec.json"
+
+# Deliverable options
+deliverables:
+  default: "implementation"
+  options: ["implementation", "architecture", "outline", "json_spec", "code_review"]
+  schemas:
+    implementation: "schemas/software_implementation.json"
+    architecture: "schemas/software_architecture.json"
+    code_review: "schemas/software_review.json"
+
+# Quality assurance
+rubrics:
+  - "technical_accuracy"
+  - "best_practices"
+  - "security_considerations"
+  - "performance_implications"
+  - "maintainability"
+
+validators:
+  - "schemas/software_implementation.json"
+  - "security_content_filter"
+  - "code_syntax_check"
+
+# Integration
+tool_adapters:
+  - "code_runner"
+  - "performance_calculator"
+  - "security_scanner"
+  - "documentation_generator"
+
+# Metadata
+priority: 80
+overlay_compatible: true
+conflicts_with: []

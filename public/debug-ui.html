@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAFA Debug Interface</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #d1d5db;
+        }
+        
+        .container {
+            background: #2d2d2d;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #10a37f;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #9ca3af;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            color: #d1d5db;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #10a37f;
+        }
+        
+        button {
+            background: #10a37f;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        button:hover:not(:disabled) {
+            background: #0891b2;
+        }
+        
+        button:disabled {
+            background: #374151;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .debug-log {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .log-info {
+            color: #3b82f6;
+        }
+        
+        .log-error {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .log-success {
+            color: #10b981;
+        }
+        
+        .response-area {
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .status.online {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+        
+        .status.offline {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        
+        .chip {
+            background: #10a37f;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 YAFA Debug Interface</h1>
+        
+        <div id="serverStatus" class="status offline">🔴 Checking server...</div>
+        
+        <div class="input-group">
+            <label for="questionInput">Test Question:</label>
+            <textarea id="questionInput" placeholder="Enter your question here...">How do I analyze catalyst stability?</textarea>
+        </div>
+        
+        <button id="sendButton" onclick="sendMessage()">🚀 Send Message</button>
+        
+        <div id="domainChips" class="chips"></div>
+        
+        <div class="response-area">
+            <strong>Response:</strong>
+            <div id="responseContent">No response yet...</div>
+        </div>
+        
+        <div class="debug-log" id="debugLog">
+            <div class="log-entry log-info">Debug log initialized...</div>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+        
+        function log(message, type = 'info') {
+            const debugLog = document.getElementById('debugLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            debugLog.appendChild(entry);
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(`[YAFA DEBUG] ${message}`);
+        }
+        
+        async function checkServerStatus() {
+            log('Checking server status...', 'info');
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('serverStatus').innerHTML = `🟢 Server Online • ${data.cartridges_loaded || 0} cartridges`;
+                    document.getElementById('serverStatus').className = 'status online';
+                    log(`Server healthy: ${data.cartridges_loaded} cartridges loaded`, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('serverStatus').innerHTML = '🔴 Server Offline';
+                document.getElementById('serverStatus').className = 'status offline';
+                log(`Server check failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function detectDomain(text) {
+            if (!text || text.length < 5) return null;
+            
+            log('Detecting domain...', 'info');
+            try {
+                const response = await fetch('/detect-domain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                
+                if (response.ok) {
+                    const routing = await response.json();
+                    log(`Domain detected: ${routing.primary} (${Math.round(routing.confidence * 100)}%)`, 'success');
+                    
+                    // Show chips
+                    const chipsContainer = document.getElementById('domainChips');
+                    chipsContainer.innerHTML = '';
+                    
+                    const primaryChip = document.createElement('div');
+                    primaryChip.className = 'chip';
+                    primaryChip.textContent = `🎯 ${routing.primary}`;
+                    chipsContainer.appendChild(primaryChip);
+                    
+                    const confidenceChip = document.createElement('div');
+                    confidenceChip.className = 'chip';
+                    confidenceChip.textContent = `📊 ${Math.round(routing.confidence * 100)}%`;
+                    chipsContainer.appendChild(confidenceChip);
+                    
+                    if (routing.overlays && routing.overlays.length > 0) {
+                        routing.overlays.forEach(overlay => {
+                            const overlayChip = document.createElement('div');
+                            overlayChip.className = 'chip';
+                            overlayChip.textContent = `🛡️ ${overlay}`;
+                            chipsContainer.appendChild(overlayChip);
+                        });
+                    }
+                    
+                    return routing;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                log(`Domain detection failed: ${error.message}`, 'error');
+                return null;
+            }
+        }
+        
+        async function sendMessage() {
+            if (isLoading) {
+                log('Already processing a request...', 'error');
+                return;
+            }
+            
+            const questionInput = document.getElementById('questionInput');
+            const sendButton = document.getElementById('sendButton');
+            const responseContent = document.getElementById('responseContent');
+            
+            const question = questionInput.value.trim();
+            if (!question) {
+                log('No question entered', 'error');
+                return;
+            }
+            
+            isLoading = true;
+            sendButton.disabled = true;
+            sendButton.textContent = '⏳ Processing...';
+            responseContent.textContent = 'Generating response...';
+            
+            log(`Sending question: "${question}"`, 'info');
+            
+            try {
+                // First detect domain
+                const routing = await detectDomain(question);
+                
+                // Then send the question
+                log('Sending to /ask endpoint...', 'info');
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        question: question,
+                        domain: 'auto',
+                        routing: routing 
+                    })
+                });
+                
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                log('Response received successfully', 'success');
+                
+                if (data.success) {
+                    responseContent.innerHTML = `
+                        <strong>Answer:</strong><br>
+                        ${data.answer}<br><br>
+                        <strong>Metadata:</strong><br>
+                        Cost: $${data.metadata.cost?.toFixed(6) || 'N/A'}<br>
+                        Latency: ${data.metadata.latency_ms || 'N/A'}ms<br>
+                        Tokens: ${data.metadata.tokens || 'N/A'}<br>
+                        Confidence: ${Math.round((data.confidence || 0) * 100)}%
+                    `;
+                    log(`Response generated successfully (${data.metadata.tokens} tokens, $${data.metadata.cost?.toFixed(6)})`, 'success');
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+                
+            } catch (error) {
+                log(`Request failed: ${error.message}`, 'error');
+                responseContent.innerHTML = `<span style="color: #ef4444;">Error: ${error.message}</span>`;
+            } finally {
+                isLoading = false;
+                sendButton.disabled = false;
+                sendButton.textContent = '🚀 Send Message';
+            }
+        }
+        
+        // Add Enter key support
+        document.getElementById('questionInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Auto-detect domain as user types
+        document.getElementById('questionInput').addEventListener('input', (e) => {
+            clearTimeout(window.domainDetectionTimer);
+            window.domainDetectionTimer = setTimeout(() => {
+                detectDomain(e.target.value);
+            }, 500);
+        });
+        
+        // Initialize
+        checkServerStatus();
+        
+        // Auto-refresh server status every 30 seconds
+        setInterval(checkServerStatus, 30000);
+        
+        log('Debug interface initialized', 'success');
+    </script>
+</body>
+</html>

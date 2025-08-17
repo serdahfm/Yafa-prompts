@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAFA AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--error-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: var(--success-color);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Chat Container */
+        .chat-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Domain Detection Bar */
+        .domain-bar {
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: none;
+        }
+
+        .domain-bar.show {
+            display: block;
+        }
+
+        .domain-chips {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .chip {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: transform 0.2s ease;
+        }
+
+        .chip:hover {
+            transform: scale(1.05);
+        }
+
+        .chip.confidence {
+            background: var(--success-color);
+        }
+
+        .chip.safety {
+            background: var(--warning-color);
+        }
+
+        .chip.overlay {
+            background: var(--text-secondary);
+        }
+
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 1rem;
+            max-width: 85%;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+        }
+
+        .avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .avatar.user {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .avatar.assistant {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .message-content {
+            background: var(--bg-secondary);
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            flex: 1;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .message-text {
+            margin-bottom: 0.5rem;
+        }
+
+        .message-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .message.user .message-meta {
+            color: rgba(255, 255, 255, 0.7);
+            border-top-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 3rem 2rem;
+            height: 100%;
+        }
+
+        .welcome-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .example-prompts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .example-prompt {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .example-prompt:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
+        }
+
+        .example-prompt-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .example-prompt-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+
+        /* Input Area */
+        .input-area {
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem;
+            background: var(--bg-primary);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .message-input {
+            width: 100%;
+            min-height: 44px;
+            max-height: 120px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.5;
+            resize: none;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .message-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            min-width: 100px;
+            justify-content: center;
+        }
+
+        .send-button:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .send-button:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Loading States */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error States */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .chat-container {
+                height: 80vh;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+            .input-container {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .send-button {
+                width: 100%;
+            }
+
+            .example-prompts {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus styles for keyboard navigation */
+        .example-prompt:focus,
+        .send-button:focus,
+        .message-input:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">YAFA</h1>
+            <p class="tagline">AI Assistant with Intelligent Domain Detection</p>
+        </header>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+            <div id="statsDisplay" style="font-size: 0.75rem; color: var(--text-muted);"></div>
+        </div>
+
+        <!-- Main Chat Interface -->
+        <div class="chat-container">
+            <!-- Domain Detection Bar -->
+            <div class="domain-bar" id="domainBar">
+                <div class="domain-chips" id="domainChips"></div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="messages-area" id="messagesArea">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <h2 class="welcome-title">Welcome to YAFA</h2>
+                    <p class="welcome-subtitle">Ask me anything! I'll automatically detect the domain and provide expert responses.</p>
+                    
+                    <div class="example-prompts">
+                        <div class="example-prompt" data-prompt="How do I analyze catalyst stability in aqueous solutions using spectroscopy methods?">
+                            <div class="example-prompt-title">🧪 Chemistry Analysis</div>
+                            <div class="example-prompt-text">Catalyst stability analysis with spectroscopy</div>
+                        </div>
+                        
+                        <div class="example-prompt" data-prompt="Design a scalable REST API architecture for handling 10,000+ concurrent users with microservices.">
+                            <div class="example-prompt-title">⚡ Software Engineering</div>
+                            <div class="example-prompt-text">Scalable API architecture design</div>
+                        </div>
+                        
+                        <div class="example-prompt" data-prompt="What is the company policy for remote work equipment budgets and expense reimbursement?">
+                            <div class="example-prompt-title">📋 Corporate Policy</div>
+                            <div class="example-prompt-text">Remote work equipment policies</div>
+                        </div>
+                        
+                        <div class="example-prompt" data-prompt="Design a systematic literature review methodology for evaluating AI bias in healthcare applications.">
+                            <div class="example-prompt-title">🔬 Research Methods</div>
+                            <div class="example-prompt-text">Literature review for AI bias research</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="messageInput" 
+                            class="message-input" 
+                            placeholder="Ask me anything..."
+                            rows="1"></textarea>
+                    </div>
+                    <button id="sendButton" class="send-button">
+                        <span id="buttonText">Send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class YAFAInterface {
+            constructor() {
+                this.isLoading = false;
+                this.currentRouting = null;
+                this.messages = [];
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.checkServerStatus();
+                this.setupAutoResize();
+                
+                console.log('YAFA Interface initialized');
+            }
+
+            initializeElements() {
+                this.statusDot = document.getElementById('statusDot');
+                this.statusText = document.getElementById('statusText');
+                this.statsDisplay = document.getElementById('statsDisplay');
+                this.domainBar = document.getElementById('domainBar');
+                this.domainChips = document.getElementById('domainChips');
+                this.messagesArea = document.getElementById('messagesArea');
+                this.welcomeScreen = document.getElementById('welcomeScreen');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.buttonText = document.getElementById('buttonText');
+            }
+
+            setupEventListeners() {
+                // Send button click
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                
+                // Enter key support (Shift+Enter for new line)
+                this.messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Domain detection on input
+                this.messageInput.addEventListener('input', (e) => {
+                    this.debounceDetectDomain(e.target.value);
+                });
+
+                // Example prompts
+                document.querySelectorAll('.example-prompt').forEach(prompt => {
+                    prompt.addEventListener('click', () => {
+                        const text = prompt.dataset.prompt;
+                        this.messageInput.value = text;
+                        this.messageInput.focus();
+                        this.detectDomain(text);
+                        this.autoResize();
+                    });
+                });
+            }
+
+            setupAutoResize() {
+                this.messageInput.addEventListener('input', () => {
+                    this.autoResize();
+                });
+            }
+
+            autoResize() {
+                this.messageInput.style.height = 'auto';
+                this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 120) + 'px';
+            }
+
+            async checkServerStatus() {
+                try {
+                    const response = await fetch('/health');
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.setStatus('online', `Server Online • ${data.cartridges_loaded || 0} cartridges loaded`);
+                        this.updateStats(`v${data.version} • Uptime: ${Math.round(data.uptime || 0)}s`);
+                    } else {
+                        throw new Error('Server responded with error');
+                    }
+                } catch (error) {
+                    this.setStatus('offline', 'Server Offline - Please check connection');
+                    console.error('Health check failed:', error);
+                }
+            }
+
+            setStatus(status, text) {
+                this.statusDot.className = `status-dot ${status}`;
+                this.statusText.textContent = text;
+            }
+
+            updateStats(text) {
+                this.statsDisplay.textContent = text;
+            }
+
+            debounceDetectDomain(text) {
+                clearTimeout(this.domainDetectionTimer);
+                this.domainDetectionTimer = setTimeout(() => {
+                    if (text.length > 10) {
+                        this.detectDomain(text);
+                    } else {
+                        this.hideDomainBar();
+                    }
+                }, 500);
+            }
+
+            async detectDomain(text) {
+                if (!text.trim()) return;
+
+                try {
+                    const response = await fetch('/detect-domain', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text })
+                    });
+
+                    if (response.ok) {
+                        const routing = await response.json();
+                        this.currentRouting = routing;
+                        this.showDomainChips(routing);
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error('Domain detection failed:', error);
+                    this.hideDomainBar();
+                }
+            }
+
+            showDomainChips(routing) {
+                this.domainChips.innerHTML = '';
+
+                // Primary domain
+                this.addChip('🎯 ' + routing.primary, 'primary');
+
+                // Confidence
+                const confidence = Math.round(routing.confidence * 100);
+                this.addChip(`📊 ${confidence}%`, 'confidence');
+
+                // Overlays
+                if (routing.overlays && routing.overlays.length > 0) {
+                    routing.overlays.forEach(overlay => {
+                        const isSafety = overlay.includes('safety');
+                        this.addChip(
+                            (isSafety ? '🛡️ ' : '📚 ') + overlay.replace('_', ' '), 
+                            isSafety ? 'safety' : 'overlay'
+                        );
+                    });
+                }
+
+                this.domainBar.classList.add('show');
+            }
+
+            addChip(text, type) {
+                const chip = document.createElement('div');
+                chip.className = `chip ${type}`;
+                chip.textContent = text;
+                this.domainChips.appendChild(chip);
+            }
+
+            hideDomainBar() {
+                this.domainBar.classList.remove('show');
+                this.currentRouting = null;
+            }
+
+            async sendMessage() {
+                if (this.isLoading) return;
+
+                const text = this.messageInput.value.trim();
+                if (!text) return;
+
+                this.isLoading = true;
+                this.setLoadingState(true);
+
+                // Hide welcome screen
+                this.welcomeScreen.style.display = 'none';
+
+                // Add user message
+                this.addMessage('user', text);
+
+                // Clear input
+                this.messageInput.value = '';
+                this.autoResize();
+                this.hideDomainBar();
+
+                // Show typing indicator
+                const typingMessage = this.addTypingIndicator();
+
+                try {
+                    const response = await fetch('/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            question: text,
+                            domain: 'auto',
+                            routing: this.currentRouting
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    // Remove typing indicator
+                    typingMessage.remove();
+
+                    if (data.success) {
+                        // Add assistant response
+                        this.addMessage('assistant', data.answer, {
+                            cost: data.metadata?.cost,
+                            latency: data.metadata?.latency_ms,
+                            tokens: data.metadata?.tokens,
+                            confidence: data.confidence
+                        });
+                    } else {
+                        throw new Error(data.error || 'Unknown error occurred');
+                    }
+
+                } catch (error) {
+                    // Remove typing indicator
+                    if (typingMessage.parentNode) {
+                        typingMessage.remove();
+                    }
+
+                    // Show error message
+                    this.addMessage('assistant', 'I apologize, but I encountered an error processing your request. Please try again.', null, true);
+                    console.error('Send message failed:', error);
+
+                } finally {
+                    this.isLoading = false;
+                    this.setLoadingState(false);
+                }
+            }
+
+            addMessage(role, content, metadata = null, isError = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${role}`;
+
+                const avatar = document.createElement('div');
+                avatar.className = `avatar ${role}`;
+                avatar.textContent = role === 'user' ? 'You' : 'AI';
+
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+
+                const messageText = document.createElement('div');
+                messageText.className = 'message-text';
+                
+                if (isError) {
+                    messageText.innerHTML = `<div class="error-message">${content}</div>`;
+                } else {
+                    messageText.textContent = content;
+                }
+
+                messageContent.appendChild(messageText);
+
+                // Add metadata for assistant messages
+                if (role === 'assistant' && metadata && !isError) {
+                    const metaDiv = document.createElement('div');
+                    metaDiv.className = 'message-meta';
+
+                    const metaParts = [];
+                    if (metadata.tokens) metaParts.push(`${metadata.tokens} tokens`);
+                    if (metadata.latency) metaParts.push(`${metadata.latency}ms`);
+                    if (metadata.cost) metaParts.push(`$${metadata.cost.toFixed(6)}`);
+                    if (metadata.confidence) metaParts.push(`${Math.round(metadata.confidence * 100)}% confidence`);
+
+                    metaDiv.textContent = metaParts.join(' • ');
+                    messageContent.appendChild(metaDiv);
+                }
+
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageContent);
+
+                this.messagesArea.appendChild(messageDiv);
+                this.scrollToBottom();
+
+                return messageDiv;
+            }
+
+            addTypingIndicator() {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message assistant';
+
+                const avatar = document.createElement('div');
+                avatar.className = 'avatar assistant';
+                avatar.textContent = 'AI';
+
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.innerHTML = `
+                    <span>YAFA is thinking</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+
+                messageContent.appendChild(typingDiv);
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageContent);
+
+                this.messagesArea.appendChild(messageDiv);
+                this.scrollToBottom();
+
+                return messageDiv;
+            }
+
+            setLoadingState(loading) {
+                this.sendButton.disabled = loading;
+                
+                if (loading) {
+                    this.buttonText.innerHTML = '<div class="spinner"></div>';
+                } else {
+                    this.buttonText.textContent = 'Send';
+                }
+            }
+
+            scrollToBottom() {
+                this.messagesArea.scrollTop = this.messagesArea.scrollHeight;
+            }
+        }
+
+        // Initialize the interface when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.yafahInterface = new YAFAInterface();
+            
+            // Refresh server status every 30 seconds
+            setInterval(() => {
+                window.yafahInterface.checkServerStatus();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAFFA Engine - Autonomous Prompt Constructor</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --yaffa-red: #dc2626;
+            --yaffa-red-dark: #991b1b;
+            --yaffa-red-light: #fecaca;
+            --discovery-blue: #2563eb;
+            --discovery-blue-dark: #1d4ed8;
+            --discovery-blue-light: #bfdbfe;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        body.yaffa-mode {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            --primary-color: var(--yaffa-red);
+            --primary-dark: var(--yaffa-red-dark);
+            --primary-light: var(--yaffa-red-light);
+        }
+
+        body.discovery-mode {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            --primary-color: var(--discovery-blue);
+            --primary-dark: var(--discovery-blue-dark);
+            --primary-light: var(--discovery-blue-light);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        body.yaffa-mode .logo {
+            color: var(--yaffa-red);
+            text-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+        }
+
+        body.discovery-mode .logo {
+            color: var(--discovery-blue);
+            text-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .tagline {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        /* Mode Toggle */
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .toggle-container {
+            position: relative;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .toggle-option {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .toggle-option.active {
+            color: white;
+            transform: scale(1.05);
+        }
+
+        body.yaffa-mode .toggle-option.yaffa {
+            background: var(--yaffa-red);
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
+        }
+
+        body.discovery-mode .toggle-option.discovery {
+            background: var(--discovery-blue);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .mode-description {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* Main Interface */
+        .main-interface {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .panel-content {
+            padding: 1.5rem;
+        }
+
+        /* Input Panel */
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color, var(--discovery-blue));
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        body.yaffa-mode .input-field:focus {
+            border-color: var(--yaffa-red);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .input-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Sovereign Loop Panel */
+        .sovereign-inputs {
+            display: none;
+        }
+
+        .sovereign-inputs.show {
+            display: block;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            text-align: center;
+            background: var(--bg-secondary);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color, var(--discovery-blue));
+            background: var(--primary-light, var(--discovery-blue-light));
+        }
+
+        .file-upload.dragover {
+            border-color: var(--primary-color, var(--discovery-blue));
+            background: var(--primary-light, var(--discovery-blue-light));
+            transform: scale(1.02);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color, var(--discovery-blue));
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark, var(--discovery-blue-dark));
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        body.yaffa-mode .btn-primary {
+            background: var(--yaffa-red);
+        }
+
+        body.yaffa-mode .btn-primary:hover {
+            background: var(--yaffa-red-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-1px);
+        }
+
+        /* Output Panel */
+        .output-area {
+            min-height: 400px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+
+        .output-placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--primary-color, var(--discovery-blue));
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        body.yaffa-mode .spinner {
+            border-top-color: var(--yaffa-red);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Analysis Display */
+        .analysis-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--primary-color, var(--discovery-blue));
+            border-radius: var(--radius-sm);
+        }
+
+        body.yaffa-mode .analysis-section {
+            border-left-color: var(--yaffa-red);
+        }
+
+        .analysis-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .analysis-content {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Copy Controls */
+        .copy-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .copy-btn {
+            padding: 0.5rem 1rem;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-interface {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+        }
+
+        /* Toggle Switch Animation */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+            margin: 0 1rem;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--discovery-blue);
+            transition: .4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--yaffa-red);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+    </style>
+</head>
+<body class="discovery-mode">
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">YAFFA ENGINE</h1>
+            <p class="tagline">Autonomous Prompt Constructor for Downstream LLMs</p>
+            
+            <!-- Mode Toggle -->
+            <div class="mode-toggle">
+                <span>Discovery</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="modeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span>YAFFA</span>
+            </div>
+            
+            <div class="mode-description" id="modeDescription">
+                Creative brainstorming mode with alternatives, precedents, and self-critique
+            </div>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="main-interface">
+            <!-- Input Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        🎯 Request Input
+                    </h2>
+                    <p class="panel-subtitle">Describe what you want the downstream LLM to create</p>
+                </div>
+                <div class="panel-content">
+                    <!-- Initial Request -->
+                    <div class="input-group">
+                        <label class="input-label">Primary Request</label>
+                        <textarea 
+                            class="input-field input-textarea" 
+                            id="primaryRequest"
+                            placeholder="e.g., 'make a presentation about quarterly sales' or 'create a Python script for data analysis'"
+                            rows="4"></textarea>
+                    </div>
+
+                    <!-- Context -->
+                    <div class="input-group">
+                        <label class="input-label">Additional Context (Optional)</label>
+                        <textarea 
+                            class="input-field input-textarea" 
+                            id="additionalContext"
+                            placeholder="Any specific requirements, constraints, or background information..."
+                            rows="3"></textarea>
+                    </div>
+
+                    <!-- Sovereign Loop Inputs (Hidden by default) -->
+                    <div class="sovereign-inputs" id="sovereignInputs">
+                        <div class="input-group">
+                            <label class="input-label">Previous LLM Response</label>
+                            <textarea 
+                                class="input-field input-textarea" 
+                                id="previousResponse"
+                                placeholder="Paste the complete response from the downstream LLM here..."
+                                rows="6"></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Desired Changes</label>
+                            <textarea 
+                                class="input-field input-textarea" 
+                                id="desiredChanges"
+                                placeholder="Describe what you want to change or improve..."
+                                rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="generateBtn">
+                            <span>🚀</span>
+                            Generate Master Prompt
+                        </button>
+                        <button class="btn btn-secondary" id="sovereignBtn">
+                            <span>🔄</span>
+                            Sovereign Loop
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        ⚡ Generated Master Prompt
+                    </h2>
+                    <p class="panel-subtitle">Copy this prompt to your preferred LLM</p>
+                </div>
+                <div class="panel-content">
+                    <div class="output-area" id="outputArea">
+                        <div class="output-placeholder">
+                            Generated prompt will appear here...
+                            <br><br>
+                            The YAFFA Engine will analyze your request and construct a sophisticated prompt that includes:
+                            <br>• Implicit intent & schema detection
+                            <br>• Optimal persona assignment  
+                            <br>• Domain & context awareness
+                            <br>• Clear prompt contracts
+                            <br>• Functional output requirements
+                        </div>
+                    </div>
+                    
+                    <div class="copy-controls" id="copyControls" style="display: none;">
+                        <button class="copy-btn" onclick="copyToClipboard('full')">📋 Copy Full Prompt</button>
+                        <button class="copy-btn" onclick="copyToClipboard('system')">🎭 Copy System Only</button>
+                        <button class="copy-btn" onclick="copyToClipboard('user')">👤 Copy User Only</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">
+                    🧠 Prompt Analysis
+                </h2>
+                <p class="panel-subtitle">Understanding the constructed prompt</p>
+            </div>
+            <div class="panel-content">
+                <div id="analysisArea">
+                    <div class="output-placeholder">
+                        Analysis will appear here after prompt generation...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class YAFFAEngine {
+            constructor() {
+                this.currentMode = 'discovery';
+                this.sovereignMode = false;
+                this.lastPrompt = null;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.checkServerStatus();
+            }
+
+            initializeElements() {
+                this.modeToggle = document.getElementById('modeToggle');
+                this.modeDescription = document.getElementById('modeDescription');
+                this.primaryRequest = document.getElementById('primaryRequest');
+                this.additionalContext = document.getElementById('additionalContext');
+                this.sovereignInputs = document.getElementById('sovereignInputs');
+                this.previousResponse = document.getElementById('previousResponse');
+                this.desiredChanges = document.getElementById('desiredChanges');
+                this.generateBtn = document.getElementById('generateBtn');
+                this.sovereignBtn = document.getElementById('sovereignBtn');
+                this.outputArea = document.getElementById('outputArea');
+                this.analysisArea = document.getElementById('analysisArea');
+                this.copyControls = document.getElementById('copyControls');
+            }
+
+            setupEventListeners() {
+                // Mode toggle
+                this.modeToggle.addEventListener('change', () => {
+                    this.toggleMode();
+                });
+
+                // Generate button
+                this.generateBtn.addEventListener('click', () => {
+                    this.generatePrompt();
+                });
+
+                // Sovereign loop button
+                this.sovereignBtn.addEventListener('click', () => {
+                    this.toggleSovereignLoop();
+                });
+            }
+
+            toggleMode() {
+                if (this.modeToggle.checked) {
+                    // YAFFA Mode
+                    this.currentMode = 'yaffa';
+                    document.body.className = 'yaffa-mode';
+                    this.modeDescription.textContent = 'Precision engineering mode for deterministic, high-fidelity outputs';
+                } else {
+                    // Discovery Mode
+                    this.currentMode = 'discovery';
+                    document.body.className = 'discovery-mode';
+                    this.modeDescription.textContent = 'Creative brainstorming mode with alternatives, precedents, and self-critique';
+                }
+            }
+
+            toggleSovereignLoop() {
+                this.sovereignMode = !this.sovereignMode;
+                
+                if (this.sovereignMode) {
+                    this.sovereignInputs.classList.add('show');
+                    this.sovereignBtn.innerHTML = '<span>❌</span> Cancel Sovereign Loop';
+                    this.generateBtn.innerHTML = '<span>🔄</span> Generate Sovereign Prompt';
+                } else {
+                    this.sovereignInputs.classList.remove('show');
+                    this.sovereignBtn.innerHTML = '<span>🔄</span> Sovereign Loop';
+                    this.generateBtn.innerHTML = '<span>🚀</span> Generate Master Prompt';
+                }
+            }
+
+            async generatePrompt() {
+                const request = this.primaryRequest.value.trim();
+                if (!request) {
+                    alert('Please enter a primary request');
+                    return;
+                }
+
+                this.setLoading(true);
+
+                try {
+                    const payload = {
+                        primaryRequest: request,
+                        additionalContext: this.additionalContext.value,
+                        mode: this.currentMode,
+                        sovereignLoop: this.sovereignMode,
+                        previousResponse: this.sovereignMode ? this.previousResponse.value : null,
+                        desiredChanges: this.sovereignMode ? this.desiredChanges.value : null
+                    };
+
+                    const response = await fetch('/generate-master-prompt', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    this.displayPrompt(data);
+                    
+                } catch (error) {
+                    console.error('Generate prompt failed:', error);
+                    this.outputArea.innerHTML = `<div style="color: var(--error-color); text-align: center; padding: 2rem;">
+                        Error: ${error.message}
+                        <br><br>
+                        Please check your connection and try again.
+                    </div>`;
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            displayPrompt(data) {
+                this.lastPrompt = data;
+                
+                // Display the generated prompt
+                this.outputArea.innerHTML = `
+                    <div class="analysis-section">
+                        <div class="analysis-title">🎭 System Prompt</div>
+                        <div class="analysis-content">${this.escapeHtml(data.systemPrompt)}</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <div class="analysis-title">👤 User Prompt</div>
+                        <div class="analysis-content">${this.escapeHtml(data.userPrompt)}</div>
+                    </div>
+                    
+                    ${data.constraints ? `
+                    <div class="analysis-section">
+                        <div class="analysis-title">⚙️ Constraints</div>
+                        <div class="analysis-content">${this.escapeHtml(data.constraints)}</div>
+                    </div>
+                    ` : ''}
+                `;
+
+                // Display analysis
+                this.analysisArea.innerHTML = `
+                    <div class="analysis-section">
+                        <div class="analysis-title">🎯 Detected Intent</div>
+                        <div class="analysis-content">${data.analysis.detectedIntent}</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <div class="analysis-title">🎭 Assigned Persona</div>
+                        <div class="analysis-content">${data.analysis.assignedPersona}</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <div class="analysis-title">📊 Output Schema</div>
+                        <div class="analysis-content">${data.analysis.outputSchema}</div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <div class="analysis-title">🔧 Prompt Engineering Techniques</div>
+                        <div class="analysis-content">${data.analysis.techniques.join(', ')}</div>
+                    </div>
+                `;
+
+                // Show copy controls
+                this.copyControls.style.display = 'flex';
+            }
+
+            setLoading(loading) {
+                if (loading) {
+                    this.outputArea.innerHTML = `
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <span>Analyzing request and constructing master prompt...</span>
+                        </div>
+                    `;
+                    this.generateBtn.disabled = true;
+                } else {
+                    this.generateBtn.disabled = false;
+                }
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            async checkServerStatus() {
+                try {
+                    const response = await fetch('/health');
+                    if (response.ok) {
+                        console.log('YAFFA Engine server is online');
+                    }
+                } catch (error) {
+                    console.warn('Server connection check failed:', error);
+                }
+            }
+        }
+
+        // Copy to clipboard functionality
+        function copyToClipboard(type) {
+            if (!window.yaffaEngine.lastPrompt) return;
+            
+            let textToCopy = '';
+            const prompt = window.yaffaEngine.lastPrompt;
+            
+            switch (type) {
+                case 'full':
+                    textToCopy = `System: ${prompt.systemPrompt}\n\nUser: ${prompt.userPrompt}`;
+                    if (prompt.constraints) {
+                        textToCopy += `\n\nConstraints: ${prompt.constraints}`;
+                    }
+                    break;
+                case 'system':
+                    textToCopy = prompt.systemPrompt;
+                    break;
+                case 'user':
+                    textToCopy = prompt.userPrompt;
+                    break;
+            }
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Show success feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#059669';
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                alert('Copy failed. Please select and copy manually.');
+            });
+        }
+
+        // Initialize the YAFFA Engine
+        document.addEventListener('DOMContentLoaded', () => {
+            window.yaffaEngine = new YAFFAEngine();
+        });
+    </script>
+</body>
+</html>

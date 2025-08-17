@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAFFA Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f0f6fc;
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #21262d;
+            border-radius: 20px;
+            padding: 0.5rem;
+        }
+
+        .mode-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+            color: #7d8590;
+        }
+
+        .mode-btn.active {
+            color: white;
+        }
+
+        .mode-btn.yaffa.active {
+            background: #da3633;
+            box-shadow: 0 0 20px rgba(218, 54, 51, 0.3);
+        }
+
+        .mode-btn.discovery.active {
+            background: #2563eb;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 768px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #f0f6fc, #7d8590);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.125rem;
+            color: #7d8590;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .mode-description {
+            padding: 1rem;
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            color: #7d8590;
+            font-size: 0.875rem;
+        }
+
+        /* Input Section */
+        .input-section {
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #f0f6fc;
+            font-size: 0.875rem;
+        }
+
+        .input-field {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 1rem;
+            color: #e6edf3;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #7d8590;
+        }
+
+        .primary-input {
+            min-height: 120px;
+        }
+
+        .secondary-input {
+            min-height: 150px;
+        }
+
+        /* Sovereign Loop Section */
+        .sovereign-section {
+            display: none;
+            border-top: 1px solid #21262d;
+            padding-top: 2rem;
+            margin-top: 2rem;
+        }
+
+        .sovereign-section.show {
+            display: block;
+        }
+
+        .sovereign-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #f0f6fc;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 44px;
+        }
+
+        .btn-primary {
+            background: #238636;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #2ea043;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: #30363d;
+            color: #7d8590;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #21262d;
+            color: #f0f6fc;
+            border: 1px solid #30363d;
+        }
+
+        .btn-secondary:hover {
+            background: #30363d;
+            transform: translateY(-1px);
+        }
+
+        /* Output Section */
+        .output-section {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .output-section.show {
+            display: block;
+        }
+
+        .output-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .output-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+
+        .copy-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .copy-btn {
+            padding: 0.5rem 1rem;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #f0f6fc;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #30363d;
+        }
+
+        .output-content {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .prompt-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #161b22;
+            border-left: 3px solid #238636;
+            border-radius: 6px;
+        }
+
+        .prompt-section h4 {
+            color: #f0f6fc;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .prompt-section pre {
+            color: #e6edf3;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+            color: #7d8590;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #21262d;
+            border-top: 2px solid #58a6ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Examples */
+        .examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .example-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .example-card:hover {
+            border-color: #30363d;
+            transform: translateY(-2px);
+        }
+
+        .example-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #f0f6fc;
+        }
+
+        .example-desc {
+            color: #7d8590;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .header {
+                padding: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">YAFFA Engine</div>
+        <div class="mode-toggle">
+            <button class="mode-btn discovery active" data-mode="discovery">Discovery</button>
+            <button class="mode-btn yaffa" data-mode="yaffa">YAFFA</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">Autonomous Prompt Constructor</h1>
+            <p class="welcome-subtitle">Transform simple requests into sophisticated prompts for downstream LLMs</p>
+            <div class="mode-description" id="modeDescription">
+                Creative brainstorming mode with alternatives, precedents, and self-critique
+            </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="input-group">
+                <label class="input-label">What do you want to create?</label>
+                <textarea 
+                    class="input-field primary-input" 
+                    id="primaryRequest"
+                    placeholder="e.g., 'make a presentation about quarterly sales' or 'create a Python script for data analysis'"
+                    rows="4"></textarea>
+            </div>
+
+            <!-- Sovereign Loop Section -->
+            <div class="sovereign-section" id="sovereignSection">
+                <div class="sovereign-title">
+                    🔄 Sovereign Loop - Refine Your Results
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Paste LLM Response</label>
+                    <textarea 
+                        class="input-field secondary-input" 
+                        id="llmResponse"
+                        placeholder="Paste the complete response you received from ChatGPT, Claude, or any other LLM here..."
+                        rows="6"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">What needs to be improved?</label>
+                    <textarea 
+                        class="input-field" 
+                        id="improvementNeeds"
+                        placeholder="Describe what you want to change, improve, or fix about the response..."
+                        rows="3"></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="generateBtn">
+                    <span>🚀</span>
+                    Generate Master Prompt
+                </button>
+                <button class="btn btn-secondary" id="sovereignBtn">
+                    <span>🔄</span>
+                    Refine Results
+                </button>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="output-section" id="outputSection">
+            <div class="output-header">
+                <h2 class="output-title">Generated Master Prompt</h2>
+                <div class="copy-controls">
+                    <button class="copy-btn" onclick="copyPrompt('full')">📋 Copy All</button>
+                    <button class="copy-btn" onclick="copyPrompt('system')">🎭 System</button>
+                    <button class="copy-btn" onclick="copyPrompt('user')">👤 User</button>
+                </div>
+            </div>
+            <div class="output-content" id="outputContent">
+                <!-- Generated content will appear here -->
+            </div>
+        </div>
+
+        <!-- Examples Section -->
+        <div class="examples" id="examplesSection">
+            <div class="example-card" onclick="fillExample('presentation')">
+                <div class="example-title">📊 Sales Presentation</div>
+                <div class="example-desc">Create a comprehensive quarterly sales presentation with charts and insights</div>
+            </div>
+            <div class="example-card" onclick="fillExample('python')">
+                <div class="example-title">🐍 Python Script</div>
+                <div class="example-desc">Generate a data analysis script that processes CSV files and creates visualizations</div>
+            </div>
+            <div class="example-card" onclick="fillExample('marketing')">
+                <div class="example-title">📈 Marketing Plan</div>
+                <div class="example-desc">Develop a complete marketing strategy document with actionable tactics</div>
+            </div>
+            <div class="example-card" onclick="fillExample('website')">
+                <div class="example-title">🌐 Website Design</div>
+                <div class="example-desc">Create a modern, responsive website with HTML, CSS, and JavaScript</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class YAFFAEngine {
+            constructor() {
+                this.currentMode = 'discovery';
+                this.sovereignMode = false;
+                this.lastPrompt = null;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.checkServerStatus();
+            }
+
+            initializeElements() {
+                this.modeButtons = document.querySelectorAll('.mode-btn');
+                this.modeDescription = document.getElementById('modeDescription');
+                this.primaryRequest = document.getElementById('primaryRequest');
+                this.sovereignSection = document.getElementById('sovereignSection');
+                this.llmResponse = document.getElementById('llmResponse');
+                this.improvementNeeds = document.getElementById('improvementNeeds');
+                this.generateBtn = document.getElementById('generateBtn');
+                this.sovereignBtn = document.getElementById('sovereignBtn');
+                this.outputSection = document.getElementById('outputSection');
+                this.outputContent = document.getElementById('outputContent');
+                this.examplesSection = document.getElementById('examplesSection');
+            }
+
+            setupEventListeners() {
+                // Mode toggle
+                this.modeButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.switchMode(btn.dataset.mode);
+                    });
+                });
+
+                // Generate button
+                this.generateBtn.addEventListener('click', () => {
+                    this.generatePrompt();
+                });
+
+                // Sovereign loop button
+                this.sovereignBtn.addEventListener('click', () => {
+                    this.toggleSovereignLoop();
+                });
+
+                // Auto-resize textareas
+                [this.primaryRequest, this.llmResponse, this.improvementNeeds].forEach(textarea => {
+                    if (textarea) {
+                        textarea.addEventListener('input', this.autoResize);
+                    }
+                });
+            }
+
+            switchMode(mode) {
+                this.currentMode = mode;
+                
+                // Update button states
+                this.modeButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+
+                // Update description
+                if (mode === 'yaffa') {
+                    this.modeDescription.textContent = 'Precision engineering mode for deterministic, high-fidelity outputs';
+                } else {
+                    this.modeDescription.textContent = 'Creative brainstorming mode with alternatives, precedents, and self-critique';
+                }
+            }
+
+            toggleSovereignLoop() {
+                this.sovereignMode = !this.sovereignMode;
+                
+                if (this.sovereignMode) {
+                    this.sovereignSection.classList.add('show');
+                    this.sovereignBtn.innerHTML = '<span>❌</span> Cancel Refinement';
+                    this.generateBtn.innerHTML = '<span>🔄</span> Generate Refined Prompt';
+                    this.examplesSection.style.display = 'none';
+                } else {
+                    this.sovereignSection.classList.remove('show');
+                    this.sovereignBtn.innerHTML = '<span>🔄</span> Refine Results';
+                    this.generateBtn.innerHTML = '<span>🚀</span> Generate Master Prompt';
+                    this.examplesSection.style.display = 'grid';
+                }
+            }
+
+            async generatePrompt() {
+                const request = this.primaryRequest.value.trim();
+                if (!request) {
+                    this.showError('Please enter what you want to create');
+                    return;
+                }
+
+                if (this.sovereignMode) {
+                    if (!this.llmResponse.value.trim()) {
+                        this.showError('Please paste the LLM response you want to improve');
+                        return;
+                    }
+                    if (!this.improvementNeeds.value.trim()) {
+                        this.showError('Please describe what needs to be improved');
+                        return;
+                    }
+                }
+
+                this.setLoading(true);
+                this.hideExamples();
+
+                try {
+                    const payload = {
+                        primaryRequest: request,
+                        mode: this.currentMode,
+                        sovereignLoop: this.sovereignMode,
+                        previousResponse: this.sovereignMode ? this.llmResponse.value : null,
+                        desiredChanges: this.sovereignMode ? this.improvementNeeds.value : null
+                    };
+
+                    const response = await fetch('/generate-master-prompt', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    this.displayPrompt(data);
+                    
+                } catch (error) {
+                    console.error('Generate prompt failed:', error);
+                    this.showError(`Failed to generate prompt: ${error.message}`);
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            displayPrompt(data) {
+                this.lastPrompt = data;
+                
+                this.outputContent.innerHTML = `
+                    <div class="prompt-section">
+                        <h4>🎭 System Prompt</h4>
+                        <pre>${this.escapeHtml(data.systemPrompt)}</pre>
+                    </div>
+                    
+                    <div class="prompt-section">
+                        <h4>👤 User Prompt</h4>
+                        <pre>${this.escapeHtml(data.userPrompt)}</pre>
+                    </div>
+                    
+                    ${data.constraints ? `
+                    <div class="prompt-section">
+                        <h4>⚙️ Constraints</h4>
+                        <pre>${this.escapeHtml(data.constraints)}</pre>
+                    </div>
+                    ` : ''}
+                `;
+
+                this.outputSection.classList.add('show');
+                this.outputSection.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            setLoading(loading) {
+                if (loading) {
+                    this.outputContent.innerHTML = `
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <span>Analyzing request and constructing master prompt...</span>
+                        </div>
+                    `;
+                    this.outputSection.classList.add('show');
+                    this.generateBtn.disabled = true;
+                } else {
+                    this.generateBtn.disabled = false;
+                }
+            }
+
+            showError(message) {
+                this.outputContent.innerHTML = `
+                    <div style="color: #f85149; text-align: center; padding: 2rem;">
+                        <strong>Error:</strong> ${message}
+                    </div>
+                `;
+                this.outputSection.classList.add('show');
+            }
+
+            hideExamples() {
+                this.examplesSection.style.display = 'none';
+            }
+
+            autoResize(event) {
+                const textarea = event.target;
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            async checkServerStatus() {
+                try {
+                    const response = await fetch('/health');
+                    if (response.ok) {
+                        console.log('YAFFA Engine server is online');
+                    }
+                } catch (error) {
+                    console.warn('Server connection check failed:', error);
+                }
+            }
+        }
+
+        // Copy functionality
+        function copyPrompt(type) {
+            if (!window.yaffaEngine.lastPrompt) return;
+            
+            let textToCopy = '';
+            const prompt = window.yaffaEngine.lastPrompt;
+            
+            switch (type) {
+                case 'full':
+                    textToCopy = `System: ${prompt.systemPrompt}\n\nUser: ${prompt.userPrompt}`;
+                    if (prompt.constraints) {
+                        textToCopy += `\n\nConstraints: ${prompt.constraints}`;
+                    }
+                    break;
+                case 'system':
+                    textToCopy = prompt.systemPrompt;
+                    break;
+                case 'user':
+                    textToCopy = prompt.userPrompt;
+                    break;
+            }
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.background = '#238636';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#21262d';
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                alert('Copy failed. Please select and copy manually.');
+            });
+        }
+
+        // Example filling
+        function fillExample(type) {
+            const examples = {
+                presentation: 'make a presentation about quarterly sales',
+                python: 'create a Python script for data analysis',
+                marketing: 'develop a comprehensive marketing plan',
+                website: 'build a modern responsive website'
+            };
+            
+            document.getElementById('primaryRequest').value = examples[type] || '';
+            document.getElementById('primaryRequest').focus();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            window.yaffaEngine = new YAFFAEngine();
+        });
+    </script>
+</body>
+</html>

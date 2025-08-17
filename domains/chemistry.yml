@@ -1,0 +1,91 @@
+id: chemistry
+name: Chemistry & Materials Science
+description: Expert-level chemistry analysis with safety-first approach
+version: "1.0.0"
+
+# Auto-detection rules
+activators:
+  keywords: 
+    - molarity
+    - catalyst
+    - reagent
+    - titration
+    - NMR
+    - pKa
+    - synthesis
+    - polymer
+    - crystallization
+    - spectroscopy
+    - chromatography
+    - stoichiometry
+    - thermodynamics
+    - kinetics
+    - equilibrium
+  units_regex: "(mol\\/L|M|g\\/mol|°C|K|pH|mmol|μmol|nm|IR|UV)"
+  doc_shapes: ["imrad"]
+  file_extensions: ["mol", "cif", "pdb", "xyz"]
+  confidence_threshold: 0.7
+
+# Safety-first configuration
+safety:
+  forbid_procedures: true
+  forbid_harmful: true
+  redact_pii: true
+  topic_blocks:
+    - "explosive synthesis"
+    - "drug manufacturing"
+    - "biological weapons"
+    - "hazardous procedures"
+  required_disclaimers:
+    - "This analysis is for educational purposes only"
+    - "Consult safety data sheets before handling any chemicals"
+    - "Follow institutional safety protocols"
+  max_risk_level: "low"
+
+# Chemistry-specific style
+style:
+  tone: "scholarly"
+  units: "SI"
+  citation_style: "apa"
+  length_preference: "detailed"
+  structure: "sectioned"
+
+# Templates
+templates:
+  system: "templates/chemistry_system.md"
+  user: "templates/chemistry_user.md"
+  critic: "templates/chemistry_critic.md"
+  outline: "templates/chemistry_outline.md"
+  json_spec: "schemas/chemistry_analysis.json"
+
+# Deliverable options
+deliverables:
+  default: "analysis"
+  options: ["analysis", "outline", "json_spec", "safety_review"]
+  schemas:
+    analysis: "schemas/chemistry_analysis.json"
+    safety_review: "schemas/chemistry_safety.json"
+    experimental: "schemas/chemistry_experiment.json"
+
+# Quality assurance
+rubrics:
+  - "variables_controls_safety"
+  - "citation_requirements"
+  - "units_consistency"
+  - "safety_considerations"
+
+validators:
+  - "schemas/chemistry_analysis.json"
+  - "safety_content_filter"
+  - "citation_coverage"
+
+# Integration
+tool_adapters:
+  - "unit_converter"
+  - "molecular_weight_calculator"
+  - "safety_data_lookup"
+
+# Metadata
+priority: 85
+overlay_compatible: true
+conflicts_with: ["explosives", "weapons"]

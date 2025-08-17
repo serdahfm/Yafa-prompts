@@ -1,0 +1,97 @@
+id: phd_research
+name: PhD Research & Academic Writing
+description: Scholarly analysis with rigorous citation and methodology
+version: "1.0.0"
+
+# Auto-detection rules (overlay cartridge)
+activators:
+  keywords:
+    - hypothesis
+    - methodology
+    - literature review
+    - peer review
+    - significance
+    - reproducibility
+    - statistical
+    - correlation
+    - regression
+    - p-value
+    - confidence interval
+    - meta-analysis
+    - systematic review
+    - empirical
+    - theoretical
+    - abstract
+    - introduction
+    - conclusion
+    - discussion
+    - limitations
+  units_regex: "(p<|α=|β=|r=|n=|df=|χ²|F=|t=)"
+  doc_shapes: ["imrad"]
+  file_extensions: ["tex", "bib", "ris", "endnote"]
+  confidence_threshold: 0.75
+
+# Academic integrity
+safety:
+  forbid_procedures: false
+  forbid_harmful: false
+  redact_pii: true
+  topic_blocks:
+    - "research misconduct"
+    - "data fabrication"
+    - "plagiarism"
+  required_disclaimers:
+    - "Follow institutional research ethics"
+    - "Ensure proper attribution and citation"
+    - "Consider limitations and biases"
+  max_risk_level: "medium"
+
+# Scholarly style
+style:
+  tone: "scholarly"
+  units: "SI"
+  citation_style: "apa"
+  length_preference: "comprehensive"
+  structure: "sectioned"
+
+# Templates
+templates:
+  system: "templates/phd_system.md"
+  user: "templates/phd_user.md"
+  critic: "templates/phd_critic.md"
+  outline: "templates/phd_outline.md"
+  json_spec: "schemas/phd_analysis.json"
+
+# Deliverable options
+deliverables:
+  default: "analysis"
+  options: ["analysis", "outline", "literature_review", "methodology", "json_spec"]
+  schemas:
+    analysis: "schemas/phd_analysis.json"
+    literature_review: "schemas/phd_literature.json"
+    methodology: "schemas/phd_methodology.json"
+
+# Quality assurance
+rubrics:
+  - "citation_quality"
+  - "methodological_rigor"
+  - "theoretical_grounding"
+  - "statistical_validity"
+  - "reproducibility"
+  - "ethical_considerations"
+
+validators:
+  - "schemas/phd_analysis.json"
+  - "citation_coverage"
+  - "academic_integrity"
+
+# Integration
+tool_adapters:
+  - "reference_manager"
+  - "statistical_calculator"
+  - "citation_formatter"
+
+# Metadata
+priority: 75
+overlay_compatible: true
+conflicts_with: []

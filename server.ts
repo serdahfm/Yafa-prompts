@@ -11,94 +11,166 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { PerfectPromptGenerator, TaskFrameBuilder, Utils } from './lib/index';
+import { domainRouter } from './lib/core/domainRouter.js';
+import { cartridgeComposer } from './lib/core/cartridgeComposer.js';
+import { cartridgeLoader } from './lib/core/cartridgeLoader.js';
+import { userLearning } from './lib/core/userLearning.js';
 import * as fs from 'fs';
 import * as path from 'path';
+import OpenAI from 'openai';
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Enhanced Mock LLM Provider with realistic responses
-class MockLLMProvider {
-  async generate(request: any) {
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
-    
-    const responses = {
-      policies: {
-        travel: "Business class flights are authorized for international trips >8 hours for VP+ level or medical exemption. Domestic flights require economy class unless medical documentation provided. [policy_2024_07#p12]",
-        expense: "Meal expenses covered up to $75/day for business travel. Alcohol limited to 20% of total meal cost for client entertainment only. Receipts required for all expenses >$25. [policy_2024_07#p45]",
-        remote: "Remote work approved for eligible roles with manager consent. Equipment budget up to $1,500 one-time for home office setup. Minimum 2 days/week in office required for hybrid roles. [policy_2024_07#p67]"
-      },
-      technical: {
-        api: "API implements rate limiting at 1000 req/hour per key with burst tolerance of 10 req/sec. Circuit breaker opens after 5 consecutive failures. All endpoints require OAuth 2.0 authentication. [api_docs#rate_limits]",
-        security: "All data encrypted with AES-256-GCM. Keys rotated every 90 days via AWS KMS. PII fields require additional field-level encryption. Zero-trust architecture enforced. [security_guide#encryption]",
-        deployment: "Production deploys require 2 approvals and automated testing. Blue-green deployment strategy with 15-minute health checks. Rollback capability within 5 minutes. [deploy_guide#process]"
-      }
-    };
+// Real OpenAI LLM Provider
+class OpenAIProvider {
+  private openai: OpenAI;
 
-    // Choose appropriate response based on domain and question
-    const domain = request.system.includes('policy') ? 'policies' : 'technical';
-    const question = request.user.toLowerCase();
-    
-    let answer = "This is a mock response for demonstration purposes.";
-    let citations = [{ chunk_id: "demo#p1", relevance: 0.8, excerpt: "Demo excerpt" }];
-    
-    if (domain === 'policies') {
-      if (question.includes('travel') || question.includes('flight')) {
-        answer = responses.policies.travel;
-        citations = [{ chunk_id: "policy_2024_07#p12", relevance: 0.95, excerpt: "Travel policy excerpt" }];
-      } else if (question.includes('expense') || question.includes('meal')) {
-        answer = responses.policies.expense;
-        citations = [{ chunk_id: "policy_2024_07#p45", relevance: 0.92, excerpt: "Expense policy excerpt" }];
-      } else if (question.includes('remote') || question.includes('office')) {
-        answer = responses.policies.remote;
-        citations = [{ chunk_id: "policy_2024_07#p67", relevance: 0.89, excerpt: "Remote work policy excerpt" }];
-      }
-    } else if (domain === 'technical') {
-      if (question.includes('api') || question.includes('rate')) {
-        answer = responses.technical.api;
-        citations = [{ chunk_id: "api_docs#rate_limits", relevance: 0.94, excerpt: "API documentation excerpt" }];
-      } else if (question.includes('security') || question.includes('encrypt')) {
-        answer = responses.technical.security;
-        citations = [{ chunk_id: "security_guide#encryption", relevance: 0.91, excerpt: "Security guide excerpt" }];
-      } else if (question.includes('deploy') || question.includes('production')) {
-        answer = responses.technical.deployment;
-        citations = [{ chunk_id: "deploy_guide#process", relevance: 0.88, excerpt: "Deployment guide excerpt" }];
-      }
+  constructor() {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY environment variable is required');
     }
+    
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+  }
 
-    return {
-      content: JSON.stringify({
-        answer,
-        citations,
-        confidence: 0.85 + Math.random() * 0.1,
-        reasoning: "Response generated based on domain-specific knowledge and citation requirements",
-        flags: [],
-        related_questions: [
-          "What about international travel policies?",
-          "How do expense reporting requirements work?",
-          "What are the technical implementation details?"
-        ]
-      }),
-      usage: { 
-        prompt_tokens: 450 + Math.floor(Math.random() * 200), 
-        completion_tokens: 120 + Math.floor(Math.random() * 80), 
-        total_tokens: 570 + Math.floor(Math.random() * 280) 
-      },
-      model: request.model,
-      latency_ms: 800 + Math.floor(Math.random() * 400),
-      cost_usd: (0.003 + Math.random() * 0.004)
-    };
+  async generate(request: any) {
+    const startTime = Date.now();
+    
+    try {
+      console.log('🤖 Calling OpenAI with request:', {
+        system: request.system.substring(0, 100) + '...',
+        user: request.user.substring(0, 100) + '...',
+        model: 'gpt-4o-mini'
+      });
+
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: request.system
+          },
+          {
+            role: 'user', 
+            content: request.user
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
+      });
+
+      const latency_ms = Date.now() - startTime;
+      const usage = response.usage || { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+      
+      // Calculate cost (rough estimates for gpt-4o-mini)
+      const cost_usd = (usage.prompt_tokens * 0.00000015) + (usage.completion_tokens * 0.0000006);
+
+      console.log('✅ OpenAI response received:', {
+        latency_ms,
+        tokens: usage.total_tokens,
+        cost_usd: cost_usd.toFixed(6)
+      });
+
+      const rawContent = response.choices[0].message.content || '';
+      let parsedContent;
+      
+      // Try to parse as JSON first
+      try {
+        parsedContent = JSON.parse(rawContent);
+      } catch (parseError) {
+        console.log('📝 OpenAI returned plain text, structuring response...');
+        
+        // Extract JSON-like content if it exists
+        const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            parsedContent = JSON.parse(jsonMatch[0]);
+          } catch (e) {
+            parsedContent = null;
+          }
+        }
+        
+        // If no valid JSON found, create structured response
+        if (!parsedContent) {
+          parsedContent = {
+            answer: rawContent.trim(),
+            citations: [],
+            confidence: 0.8,
+            reasoning: "Response generated from OpenAI text output",
+            flags: [],
+            metadata: {
+              domain: "general",
+              safety_checks: ["content_filtered"],
+              applied_overlays: []
+            }
+          };
+        }
+      }
+
+      return {
+        content: JSON.stringify(parsedContent),
+        usage: {
+          prompt_tokens: usage.prompt_tokens,
+          completion_tokens: usage.completion_tokens,
+          total_tokens: usage.total_tokens
+        },
+        model: response.model,
+        latency_ms,
+        cost_usd
+      };
+
+    } catch (error) {
+      console.error('❌ OpenAI API error:', error);
+      
+      // Fallback response for API errors
+      return {
+        content: JSON.stringify({
+          answer: "I'm experiencing technical difficulties connecting to the AI service. Please try again in a moment.",
+          citations: [],
+          confidence: 0,
+          reasoning: `API Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          flags: ["api_error"]
+        }),
+        usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
+        model: "fallback",
+        latency_ms: Date.now() - startTime,
+        cost_usd: 0
+      };
+    }
   }
 }
 
-// Initialize the generator
+// Initialize the generator and cartridge system  
 const generator = new PerfectPromptGenerator(
   __dirname,
-  new MockLLMProvider(),
+  new OpenAIProvider(),
   undefined, // No retrieval provider for demo
   true // Enable telemetry
 );
+
+// Load cartridges on startup
+async function initializeCartridges() {
+  try {
+    const loadedCount = await cartridgeLoader.loadAll();
+    console.log(`🎯 Cartridge system initialized with ${loadedCount} cartridges`);
+    
+    // Enable hot reload in development
+    if (process.env.NODE_ENV !== 'production') {
+      cartridgeLoader.enableHotReload();
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize cartridge system:', error);
+  }
+}
+
+initializeCartridges();
 
 // Middleware
 app.use(helmet());
@@ -109,6 +181,37 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files
 app.use(express.static('public'));
+
+// Cartridge interface route
+// Serve the modern ChatGPT-style interface as main
+app.get('/cartridge', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/chatgpt-style.html'));
+});
+
+// Serve the original YAFFA Engine
+app.get('/yaffa-original', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/yaffa-engine.html'));
+});
+
+// Serve the modern interface
+app.get('/modern', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/modern-ui.html'));
+});
+
+// Serve the old cartridge interface as legacy
+app.get('/cartridge-legacy', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/cartridge-ui.html'));
+});
+
+// Serve the old ChatGPT-style interface
+app.get('/chatgpt-old', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/chatgpt-ui.html'));
+});
+
+// Serve the debug interface
+app.get('/debug', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/debug-ui.html'));
+});
 
 // Error handling middleware
 app.use((err: any, req: any, res: any, next: any) => {
@@ -126,8 +229,177 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    cartridges_loaded: cartridgeLoader.getStats().total
   });
+});
+
+// Master Prompt Generation - YAFFA Engine Core
+app.post('/generate-master-prompt', async (req, res) => {
+  try {
+    const { primaryRequest, additionalContext, mode, sovereignLoop, previousResponse, desiredChanges } = req.body;
+    
+    if (!primaryRequest) {
+      return res.status(400).json({ error: 'Primary request is required' });
+    }
+
+    console.log('🎯 YAFFA Engine generating master prompt:', {
+      mode,
+      sovereignLoop,
+      requestLength: primaryRequest.length
+    });
+
+    // Construct the meta-prompt for the YAFFA Engine
+    const yaffaMetaPrompt = `You are the YAFFA Engine - an autonomous prompt constructor that creates sophisticated prompts for downstream LLMs.
+
+CORE MISSION: Transform the user's simple request into a powerful, highly-engineered prompt that will compel the downstream LLM to produce exceptional, functionally complete outputs.
+
+MODE: ${mode.toUpperCase()}
+${mode === 'yaffa' ? 
+  '- PRECISION ENGINEERING: Create deterministic, unambiguous prompts for exact, reliable outputs' :
+  '- DISCOVERY MODE: Include alternatives, precedents, and self-critique for expansive exploration'
+}
+
+USER REQUEST: "${primaryRequest}"
+${additionalContext ? `ADDITIONAL CONTEXT: "${additionalContext}"` : ''}
+
+${sovereignLoop ? `
+SOVEREIGN ITERATION CONTEXT:
+- Previous LLM Response: "${previousResponse}"
+- Desired Changes: "${desiredChanges}"
+
+You must synthesize the original request, previous response, and desired changes into a coherent next iteration.
+` : ''}
+
+AUTONOMOUS CONSTRUCTION REQUIREMENTS:
+
+1. IMPLICIT INTENT DETECTION:
+   - Analyze what the user REALLY wants (not just what they said)
+   - Detect the ideal output format (PowerPoint, Excel, code, document, etc.)
+   - Identify functional deliverables they expect
+
+2. PERSONA ASSIGNMENT:
+   - Choose the most effective persona for the downstream LLM
+   - Make them an expert in the relevant domain
+   - Give them specific role authority and context
+
+3. PROMPT CONTRACTS:
+   - Set clear constraints and requirements
+   - Specify exact output format and structure
+   - Include downloadable file generation requirements when applicable
+
+4. SCHEMA DETECTION:
+   - If they want a presentation, include PowerPoint schema
+   - If they want analysis, include data structure requirements  
+   - If they want code, specify language, style, and functionality
+
+5. ${mode === 'discovery' ? `DISCOVERY ENHANCEMENTS:
+   - Force the LLM to provide 2-3 alternative approaches
+   - Include historical precedents or examples
+   - Require self-critique and comparison of options
+   - Add meta-analysis of the solution space` : `PRECISION ENGINEERING:
+   - Eliminate ambiguity and maximize determinism
+   - Focus on single, optimal solution path
+   - Include verification and validation steps
+   - Ensure reproducible, tool-like results`}
+
+OUTPUT FORMAT:
+Return a JSON object with:
+{
+  "systemPrompt": "The system/role prompt for the downstream LLM",
+  "userPrompt": "The user instruction prompt with all requirements",
+  "constraints": "Any specific constraints or formatting rules",
+  "analysis": {
+    "detectedIntent": "What you determined they really want",
+    "assignedPersona": "The persona you gave the downstream LLM",
+    "outputSchema": "Expected output format/structure",
+    "techniques": ["list", "of", "prompt", "engineering", "techniques", "used"]
+  }
+}
+
+Generate the master prompt now.`;
+
+    // Call OpenAI to generate the master prompt
+    const startTime = Date.now();
+    const openaiProvider = new OpenAIProvider();
+    const response = await openaiProvider.generate({
+      system: yaffaMetaPrompt,
+      user: 'Generate the master prompt for this request.',
+      model: 'gpt-4o-mini'
+    });
+
+    const latency = Date.now() - startTime;
+    
+    let masterPrompt;
+    try {
+      masterPrompt = JSON.parse(response.content);
+    } catch (parseError) {
+      console.warn('⚠️ Failed to parse YAFFA response as JSON, extracting...');
+      // Try to extract JSON from the response
+      const jsonMatch = response.content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        masterPrompt = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Could not extract valid JSON from YAFFA response');
+      }
+    }
+
+    console.log('✅ YAFFA Engine generated master prompt:', {
+      latency: `${latency}ms`,
+      systemLength: masterPrompt.systemPrompt?.length || 0,
+      userLength: masterPrompt.userPrompt?.length || 0,
+      techniques: masterPrompt.analysis?.techniques?.length || 0
+    });
+
+    return res.json({
+      success: true,
+      ...masterPrompt,
+      metadata: {
+        mode,
+        sovereignLoop,
+        generationTime: latency,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ YAFFA Engine error:', error);
+    return res.status(500).json({
+      error: 'Failed to generate master prompt',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Domain detection endpoint
+app.post('/detect-domain', async (req, res) => {
+  try {
+    const { text, files = [] } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+    
+    console.log(`🔍 Detecting domain for: "${text.substring(0, 50)}..."`);
+    
+    const routing = await domainRouter.route(text, files);
+    
+    console.log(`🎯 Domain detection result:`, {
+      primary: routing.primary,
+      confidence: routing.confidence,
+      overlays: routing.overlays
+    });
+    
+    res.json(routing);
+    
+  } catch (error) {
+    console.error('❌ Domain detection error:', error);
+    res.status(500).json({ 
+      error: 'Domain detection failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
 // API Documentation endpoint

@@ -1,0 +1,74 @@
+id: safety_core
+name: Core Safety Overlay
+description: Mandatory safety restrictions for sensitive domains
+version: "1.0.0"
+
+# Safety overlay - always applied to chemistry, biology, medicine
+activators:
+  keywords: []  # Not auto-detected, only applied as overlay
+  confidence_threshold: 1.0
+
+# Strict safety enforcement
+safety:
+  forbid_procedures: true
+  forbid_harmful: true
+  redact_pii: true
+  topic_blocks:
+    - "detailed procedures"
+    - "synthesis methods"
+    - "manufacturing processes"
+    - "hazardous techniques"
+    - "dual-use applications"
+    - "weaponization"
+    - "bioweapons"
+    - "explosives"
+    - "toxic compounds"
+    - "controlled substances"
+  required_disclaimers:
+    - "⚠️ SAFETY NOTICE: This is for educational analysis only"
+    - "🚫 NO PROCEDURES: Detailed methods are restricted"
+    - "📚 LITERATURE ONLY: Focus on published research and theory"
+    - "🔬 CONSULT EXPERTS: Professional guidance required for implementation"
+  max_risk_level: "low"
+
+# Conservative style
+style:
+  tone: "formal"
+  units: "SI"
+  citation_style: "apa"
+  length_preference: "concise"
+  structure: "sectioned"
+
+# Safety-focused templates
+templates:
+  system: "templates/safety_system.md"
+  user: "templates/safety_user.md"
+  critic: "templates/safety_critic.md"
+
+# Limited deliverables
+deliverables:
+  default: "analysis"
+  options: ["analysis", "literature_review", "safety_assessment"]
+  schemas:
+    analysis: "schemas/safety_analysis.json"
+    literature_review: "schemas/safety_literature.json"
+    safety_assessment: "schemas/safety_assessment.json"
+
+# Strict quality assurance
+rubrics:
+  - "safety_compliance"
+  - "no_procedures_check"
+  - "harm_prevention"
+  - "educational_focus"
+  - "disclaimer_presence"
+
+validators:
+  - "schemas/safety_analysis.json"
+  - "procedure_blocker"
+  - "harm_content_filter"
+  - "dual_use_detector"
+
+# Metadata
+priority: 100  # Highest priority - overrides everything
+overlay_compatible: false  # This IS an overlay
+conflicts_with: []

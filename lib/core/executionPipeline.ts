@@ -8,6 +8,7 @@ import { TaskFrame, PromptPlan, ExecutionTrace, ValidationResult } from './taskF
 import { PromptCompiler } from './promptCompiler';
 import Ajv from 'ajv';
 import * as fs from 'fs';
+import OpenAI from 'openai';
 
 interface RetrievedContext {
   chunk_id: string;

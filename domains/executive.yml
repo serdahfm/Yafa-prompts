@@ -1,0 +1,85 @@
+id: executive
+name: Executive Brief Overlay
+description: Crisp, decision-oriented communication for leadership
+version: "1.0.0"
+
+# Auto-detection rules (overlay cartridge)
+activators:
+  keywords:
+    - budget
+    - ROI
+    - strategy
+    - summary
+    - executive
+    - decision
+    - recommendation
+    - business case
+    - investment
+    - timeline
+    - resource
+    - stakeholder
+    - leadership
+    - board
+    - approval
+    - priority
+    - impact
+    - risk assessment
+    - competitive
+    - market
+  confidence_threshold: 0.6
+
+# Business safety
+safety:
+  forbid_procedures: false
+  forbid_harmful: false
+  redact_pii: true
+  topic_blocks:
+    - "confidential information"
+    - "insider trading"
+    - "proprietary data"
+  required_disclaimers:
+    - "For internal use only"
+    - "Subject to business confidentiality"
+  max_risk_level: "medium"
+
+# Executive style
+style:
+  tone: "formal"
+  units: "mixed"
+  citation_style: "chicago"
+  length_preference: "concise"
+  structure: "bulleted"
+
+# Templates
+templates:
+  system: "templates/executive_system.md"
+  user: "templates/executive_user.md"
+  critic: "templates/executive_critic.md"
+  outline: "templates/executive_outline.md"
+
+# Deliverable options
+deliverables:
+  default: "brief"
+  options: ["brief", "memo", "summary", "recommendation"]
+  schemas:
+    brief: "schemas/executive_brief.json"
+    memo: "schemas/executive_memo.json"
+    recommendation: "schemas/executive_recommendation.json"
+
+# Quality assurance
+rubrics:
+  - "executive_clarity"
+  - "decision_focus"
+  - "actionable_insights"
+  - "conciseness"
+  - "business_relevance"
+
+validators:
+  - "schemas/executive_brief.json"
+  - "length_compliance"
+  - "clarity_check"
+
+# Metadata
+priority: 70
+overlay_compatible: true
+conflicts_with: []
